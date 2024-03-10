@@ -2,72 +2,85 @@
 using namespace std;
 
 template <class T>
-class Vector{
-    T* arr;
-    int lenght;
+class vector {
+	T* arr;
+	int len;
 public:
-    Vector();
-    explicit Vector(T*);
-    explicit Vector(int);
-    Vector(const Vector<T>&);
-    ~Vector();
+	vector();
+	explicit vector(T*);
+	explicit vector(int);
+	~vector();
 
-    T& operator[](int);
-    int getLen();
-    void show();
+	T& operator[](int);
+	vector<T>& operator=(const T&);
+	vector<T>& operator=(const vector<T>&);
+
+	void show();
+	void expand(int addLen = 1);
 };
 
 template<class T>
-Vector<T>::Vector() : arr(nullptr), lenght(0) {};
+vector<T>::vector(): arr(nullptr), len(0){}
 
 template<class T>
-Vector<T>::Vector(T* staticArr): lenght(sizeof(staticArr)/sizeof(staticArr[0])), arr(new T[lenght]){
-    for(int i = 0; i < lenght; i++){
-        arr[i] = staticArr[i];
-    }
+vector<T>::vector(T* staticArr) : len(sizeof(staticArr) / sizeof(staticArr[0])), arr(new T[len]) {
+	for (int i = 0; i < len; i++) {
+		arr[i] = staticArr[i];
+	}
 }
 
 template<class T>
-Vector<T>::Vector(int len): lenght(len), arr(new T[lenght]){}
+vector<T>::vector(int lenght) : len(lenght), arr(new T[len]) {}
 
 template<class T>
-Vector<T>::Vector(const Vector<T>& vec): lenght(vec.lenght), arr(new T[lenght]){
-    for(int i = 0; i < lenght; i++){
-        arr[i] = vec.arr[i];
-    }
+vector<T>::~vector() { delete[] arr; len = 0; }
+
+template<class T>
+vector<T>& vector<T>::operator=(const T& rhs) {
+	for (int i = 0; i < len; i++) {
+		arr[i] = rhs;
+	}
+	return *this;
 }
 
 template<class T>
-Vector<T>::~Vector(){delete[] arr; lenght = 0;}
+vector<T>& vector<T>::operator=(const vector<T>& rhs) {
+	if (this == &rhs) {
+		return *this;
+	}
 
-template<class T>
-T& Vector<T>::operator[](int idx){
-    if(idx < lenght){
-        return arr[idx];
-    }
-    
-    Vector<T> temp(idx);
-    for(int i = 0; i < lenght; i++){
-        temp.arr[i] = arr[i];
-    }
-    for(int i = lenght; i < temp.lenght; i++){
-        temp.arr[i] = 0;
-    }
-    delete[]arr;
-    arr = temp.arr;
-    lenght = temp.lenght;
-    return arr[idx];
+	delete[] arr;
+	len = rhs.len;
+	arr = new T[len];
+	for (int i = 0; i < len; i++) {
+		arr[i] = rhs.arr[i];
+	}
+	return *this;
 }
 
 template<class T>
-void Vector<T>::show(){
-    for(int i = 0; i < lenght; i++){
-        cout << arr[i] << " ";
-    }
-    cout << endl;
+T& vector<T>::operator[](int idx) {
+	while (idx >= len) {
+		this->expand();
+	}
+	return arr[idx];
 }
 
 template<class T>
-int Vector<T>::getLen(){
-    return lenght;
+void vector<T>::expand(int addLen) {
+	T* tArr = new T[len + addLen];
+	for (int i = 0; i < len; i++) {
+		tArr[i] = arr[i];
+	}
+	delete[] arr;
+	arr = tArr;
+	len += addLen;
+}
+
+template<class T>
+void vector<T>::show() {
+	for (int i = 0; i < len; i++) {
+		cout << arr[i] << " ";
+	}
+	cout << endl;
 }

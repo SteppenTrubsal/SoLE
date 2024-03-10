@@ -1,61 +1,47 @@
-#include "vector.hpp"
-#include <iostream>
+#include "vector.h"
 using namespace std;
 
-template <class T>
-class Matrix{
-    Vector<Vector<T>>* data;
-    int dimensions;
+template<class T>
+class matrix {
+	vector<vector<T>> data;
+	int dim;
 public:
-    Matrix();
-    explicit Matrix(int);
-    explicit Matrix(T**);
-    ~Matrix();
+	matrix();
+	explicit matrix(int);
+	explicit matrix(T**, int);
+	~matrix();
 
-    Vector<T>& operator[](int);
-
-    Matrix* getLUD();
-    void show();
+	void show();
 };
 
 template<class T>
-Matrix<T>::Matrix():data(new Vector<Vector<T>>[1]), dimensions(0){}
+matrix<T>::matrix(): data(), dim(0){}
 
 template<class T>
-Matrix<T>::Matrix(int dim) : dimensions(dim), data(new Vector<Vector<T>>(dimensions)){}
+matrix<T>::matrix(int dimensions) : dim(dimensions), data(dim) {
+	for (int i = 0; i < dim; i++) {
+		for (int j = 0; j < dim; j++) {
+			if (i == j) {
+				data[i][j] = 1;
+			}
+			else {
+				data[i][j] = 0;
+			}
+		}
+	}
+}
 
 template<class T>
-Matrix<T>::~Matrix(){delete[] data; dimensions = 0;}
+matrix<T>::matrix(T** initArr, int dimensions) {
+
+}
 
 template<class T>
-Matrix<T>::Matrix(T** twoDimStatArr){
-    dimensions = sizeof(twoDimStatArr)/sizeof(twoDimStatArr[0]);
-    data = new Vector<Vector<T>>(dimensions);
-    for(int i =0; i < dimensions; i++){
-        for(int j = 0; j < sizeof(twoDimStatArr[i])/sizeof(twoDimStatArr[i][0]); j++){
-            data[i][j] = twoDimStatArr[i][j];
-        }
-    }
-}
+matrix<T>::~matrix() { dim = 0; }
 
-template <class T>
-Vector<T>& Matrix<T>::operator[](int idx){
-    return data[idx];
+template<class T>
+void matrix<T>::show() {
+	for (int i = 0; i < dim; i++) {
+		data[i].show();
+	}
 }
-
-template <class T>
-void Matrix<T>::show(){
-    for(int i = 0; i < dimensions; i++){
-        for(int j = 0; j < data[i].getLen(); j++){
-            cout << data[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-
-/*template<class T>
-Matrix<T>* Matrix<T>::getLUD(){
-    for(int i = 0; i < dimensions; i++){
-        for(int )
-    }
-}*/
