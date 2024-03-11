@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include "someFunc.h"
+#include "someFunc.hpp"
 using namespace std;
 
 template <class T>
@@ -82,7 +82,7 @@ template<class T>
 vector<T>& vector<T>::operator-(const vector<T>& rhs) {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
-		temp.arr[i] = this.arr[i] - rhs.arr[i];
+		temp.arr[i] = this->arr[i] - rhs.arr[i];
 	}
 	return temp;
 }
@@ -91,7 +91,7 @@ template<class T>
 vector<T>& vector<T>::operator+(const vector<T>& rhs) {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
-		temp.arr[i] = this.arr[i] + rhs.arr[i];
+		temp.arr[i] = this->arr[i] + rhs.arr[i];
 	}
 	return temp;
 }
@@ -100,7 +100,7 @@ template<class T>
 vector<T>& vector<T>::operator*(const T& mul) {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
-		temp.arr[i] = this.arr[i] * mul;
+		temp.arr[i] = this->arr[i] * mul;
 	}
 	return temp;
 }

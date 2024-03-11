@@ -1,4 +1,4 @@
-#include "vector.h"
+#include "vector.hpp"
 using namespace std;
 
 template<class T>
@@ -12,7 +12,7 @@ public:
 	~matrix();
 
 	matrix<T>& operator-(const matrix<T>&);
-	matrix<T>& operator*(const T&);
+	matrix<T>& operator*(const T);
 	vector<T>& operator*(const vector<T>&);
 
 	int getDim();
@@ -56,14 +56,16 @@ matrix<T>::~matrix() { dim = 0; }
 template<class T>
 matrix<T>& matrix<T>::operator-(const matrix<T>& rhs) {
 	matrix<T> temp(dim);
-	temp.data = this.data - rhs.data;
+	temp.data = this->data - rhs.data;
 	return temp;
 }
 
 template<class T>
-matrix<T>& matrix<T>::operator*(const T& mul) {
+matrix<T>& matrix<T>::operator*(const T mul) {
 	matrix<T> temp(dim);
-	temp.data = this->data * mul;
+	for(int i = 0; i < dim; i++){
+		temp.data[i] = this->data[i] * mul;
+	}
 	return temp;
 }
 
