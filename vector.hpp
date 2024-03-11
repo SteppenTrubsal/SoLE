@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cmath>
+#include "someFunc.h"
 using namespace std;
 
 template <class T>
@@ -14,9 +16,19 @@ public:
 	T& operator[](int);
 	vector<T>& operator=(const T&);
 	vector<T>& operator=(const vector<T>&);
+	vector<T>& operator-(const vector<T>&);
+	vector<T>& operator+(const vector<T>&);
+	vector<T>& operator*(const T&);
+	//vector<T>& operator*(const matrix<T>&);
+
+	int getLen();
+	T getEucleadeanNorm();
 
 	void show();
 	void expand(int addLen = 1);
+	T max();
+	T absSum();
+	T sum();
 };
 
 template<class T>
@@ -67,6 +79,45 @@ T& vector<T>::operator[](int idx) {
 }
 
 template<class T>
+vector<T>& vector<T>::operator-(const vector<T>& rhs) {
+	vector<T> temp(len);
+	for (int i = 0; i < len; i++) {
+		temp.arr[i] = this.arr[i] - rhs.arr[i];
+	}
+	return temp;
+}
+
+template<class T>
+vector<T>& vector<T>::operator+(const vector<T>& rhs) {
+	vector<T> temp(len);
+	for (int i = 0; i < len; i++) {
+		temp.arr[i] = this.arr[i] + rhs.arr[i];
+	}
+	return temp;
+}
+
+template<class T>
+vector<T>& vector<T>::operator*(const T& mul) {
+	vector<T> temp(len);
+	for (int i = 0; i < len; i++) {
+		temp.arr[i] = this.arr[i] * mul;
+	}
+	return temp;
+}
+
+template<class T>
+int vector<T>::getLen() { return len; }
+
+template<class T>
+T vector<T>::getEucleadeanNorm() {
+	T quadroSum = 0;
+	for (int i = 0; i < len; i++) {
+		quadroSum += arr[i] * arr[i];
+	}
+	return sqrt(quadroSum);
+}
+
+template<class T>
 void vector<T>::expand(int addLen) {
 	T* tArr = new T[len + addLen];
 	for (int i = 0; i < len; i++) {
@@ -83,4 +134,33 @@ void vector<T>::show() {
 		cout << arr[i] << " ";
 	}
 	cout << endl;
+}
+
+template<class T>
+T vector<T>::max() {
+	T max = 0;
+	for (int i = 0; i < len; i++) {
+		if (arr[i] > max) {
+			max = arr[i];
+		}
+	}
+	return max;
+}
+
+template<class T>
+T vector<T>::absSum() {
+	T sum = 0;
+	for (int i = 0; i < len; i++) {
+		sum += abs(arr[i]);
+	}
+	return sum;
+}
+
+template<class T>
+T vector<T>::sum() {
+	T sum = 0;
+	for (int i = 0; i < len; i++) {
+		sum += arr[i];
+	}
+	return sum;
 }
