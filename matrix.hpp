@@ -9,11 +9,12 @@ public:
 	matrix();
 	explicit matrix(int);
 	explicit matrix(T**, int);
+	matrix(const matrix<T>&);
 	~matrix();
 
-	matrix<T>& operator-(const matrix<T>&);
-	matrix<T>& operator*(const T);
-	vector<T>& operator*(const vector<T>&);
+	matrix<T> operator-(const matrix<T>&);
+	matrix<T> operator*(const T);
+	vector<T> operator*(const vector<T>&);
 
 	int getDim();
 	T getNorm1();
@@ -25,7 +26,7 @@ public:
 };
 
 template<class T>
-matrix<T>::matrix(): data(), dim(0){}
+matrix<T>::matrix() : data(), dim(0) {}
 
 template<class T>
 matrix<T>::matrix(int dimensions) : dim(dimensions), data(dim) {
@@ -51,26 +52,35 @@ matrix<T>::matrix(T** initArr, int dimensions) : dim(dimensions), data(dim) {
 }
 
 template<class T>
+matrix<T>::matrix(const matrix<T>& old) : dim(old.dim), data(dim) {
+	for (int i = 0; i < dim; i++) {
+		for (int j = 0; j < dim; j++) {
+			data[i][j] = old.data[i][j];
+		}
+	}
+}
+
+template<class T>
 matrix<T>::~matrix() { dim = 0; }
 
 template<class T>
-matrix<T>& matrix<T>::operator-(const matrix<T>& rhs) {
+matrix<T> matrix<T>::operator-(const matrix<T>& rhs) {
 	matrix<T> temp(dim);
 	temp.data = this->data - rhs.data;
 	return temp;
 }
 
 template<class T>
-matrix<T>& matrix<T>::operator*(const T mul) {
+matrix<T> matrix<T>::operator*(const T mul) {
 	matrix<T> temp(dim);
-	for(int i = 0; i < dim; i++){
+	for (int i = 0; i < dim; i++) {
 		temp.data[i] = this->data[i] * mul;
 	}
 	return temp;
 }
 
 template<class T>
-vector<T>& matrix<T>::operator*(const vector<T>& rhs) {
+vector<T> matrix<T>::operator*(const vector<T>& rhs) {
 	vector<T> res(dim);
 	for (int i = 0; i < dim; i++) {
 		vector<T> temp(dim);
@@ -85,7 +95,7 @@ template<class T>
 int matrix<T>::getDim() { return dim; }
 
 template<class T>
-T matrix<T>::getNorm1(){}
+T matrix<T>::getNorm1() {}
 
 template<class T>
 T matrix<T>::getNorm2() {
@@ -97,7 +107,7 @@ T matrix<T>::getNorm2() {
 }
 
 template<class T>
-T matrix<T>::getNorm3(){
+T matrix<T>::getNorm3() {
 	return transpose().getNorm2();
 }
 

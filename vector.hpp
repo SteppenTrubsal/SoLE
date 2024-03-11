@@ -11,14 +11,15 @@ public:
 	vector();
 	explicit vector(T*);
 	explicit vector(int);
+	vector(const vector<T>&);
 	~vector();
 
 	T& operator[](int);
 	vector<T>& operator=(const T&);
 	vector<T>& operator=(const vector<T>&);
-	vector<T>& operator-(const vector<T>&);
-	vector<T>& operator+(const vector<T>&);
-	vector<T>& operator*(const T&);
+	vector<T> operator-(const vector<T>&);
+	vector<T> operator+(const vector<T>&);
+	vector<T> operator*(const T&)const;
 	//vector<T>& operator*(const matrix<T>&);
 
 	int getLen();
@@ -32,7 +33,7 @@ public:
 };
 
 template<class T>
-vector<T>::vector(): arr(nullptr), len(0){}
+vector<T>::vector() : arr(nullptr), len(0) {}
 
 template<class T>
 vector<T>::vector(T* staticArr) : len(sizeof(staticArr) / sizeof(staticArr[0])), arr(new T[len]) {
@@ -43,6 +44,13 @@ vector<T>::vector(T* staticArr) : len(sizeof(staticArr) / sizeof(staticArr[0])),
 
 template<class T>
 vector<T>::vector(int lenght) : len(lenght), arr(new T[len]) {}
+
+template<class T>
+vector<T>::vector(const vector<T>& old) : len(old.len), arr(new T[len]) {
+	for (int i = 0; i < len; i++) {
+		this->arr[i] = old.arr[i];
+	}
+}
 
 template<class T>
 vector<T>::~vector() { delete[] arr; len = 0; }
@@ -79,7 +87,7 @@ T& vector<T>::operator[](int idx) {
 }
 
 template<class T>
-vector<T>& vector<T>::operator-(const vector<T>& rhs) {
+vector<T> vector<T>::operator-(const vector<T>& rhs) {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
 		temp.arr[i] = this->arr[i] - rhs.arr[i];
@@ -88,7 +96,7 @@ vector<T>& vector<T>::operator-(const vector<T>& rhs) {
 }
 
 template<class T>
-vector<T>& vector<T>::operator+(const vector<T>& rhs) {
+vector<T> vector<T>::operator+(const vector<T>& rhs) {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
 		temp.arr[i] = this->arr[i] + rhs.arr[i];
@@ -97,7 +105,7 @@ vector<T>& vector<T>::operator+(const vector<T>& rhs) {
 }
 
 template<class T>
-vector<T>& vector<T>::operator*(const T& mul) {
+vector<T> vector<T>::operator*(const T& mul)const {
 	vector<T> temp(len);
 	for (int i = 0; i < len; i++) {
 		temp.arr[i] = this->arr[i] * mul;

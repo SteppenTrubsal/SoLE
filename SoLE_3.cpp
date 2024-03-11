@@ -13,6 +13,6 @@ int main() {
 	//cout << fixedPointIter(test, b, x0, _tau, 0.01) << endl;
 
 	int gg = 3;
-	(test*gg).show();
-	
+	matrix<int> test2 = test * gg;
+	test2.show();
 }
