@@ -23,3 +23,21 @@ double** createA(int dim = 4) {
 
 	return A;
 }
+
+double* createX0(int len = 4){
+	double* x = new double[len];
+    for (int i = 0; i < len; i++) {
+        x[i] = _x0[i];
+    }
+
+    return x;
+}
+
+double* createB(int len = 4){
+	double* b = new double[len];
+    for (int i = 0; i < len; i++) {
+        b[i] = _b[i];
+    }
+
+    return b;
+}

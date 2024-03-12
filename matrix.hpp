@@ -1,4 +1,5 @@
 #include <iostream>
+#include "someFunc.hpp"
 using namespace std;
 
 class matrix{
@@ -10,6 +11,13 @@ public:
     explicit matrix(int);
     explicit matrix(double**,int dimensions = 4);
     matrix(const matrix&);
+
+    matrix& operator=(const matrix&);
+    matrix operator+(const matrix&);
+    matrix operator-(const matrix&);
+    double* operator*(const double*);
+    matrix operator*(const double);
+
 
     int getDim();
     double getNorm1();
@@ -61,6 +69,71 @@ matrix::matrix(const matrix& m){
     }
 }
 
+matrix& matrix::operator=(const matrix& m){
+    if(this!= &m){
+        for(int i = 0; i < dim; i++){
+            delete[] data[i];
+        }
+        delete[] data;
+        dim = m.dim;
+        data = new double*[dim];
+        for(int i = 0; i < dim; i++){
+            data[i] = new double[dim];
+            for(int j = 0; j < dim; j++){
+                data[i][j] = m.data[i][j];
+            }
+        }
+    }
+    return *this;
+}
+
+matrix matrix::operator+(const matrix& m){
+    if(dim!= m.dim){
+        exit(1);
+    }
+    matrix result(dim);
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            result.data[i][j] = data[i][j] + m.data[i][j];
+        }
+    }
+    return result;
+}
+
+matrix matrix::operator-(const matrix& m){
+    if(dim!= m.dim){
+        exit(1);
+    }
+    matrix result(dim);
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            result.data[i][j] = data[i][j] - m.data[i][j];
+        }
+    }
+    return result;
+}
+
+double* matrix::operator*(const double* m){
+    double *result = new double[dim];
+    for(int i = 0; i < dim; i++){
+        result[i] = 0;
+        for(int j = 0; j < dim; j++){
+            result[i] += data[i][j] * m[j];
+        }
+    }
+    return result;
+}
+
+matrix matrix::operator*(const double mul){
+    matrix result(dim);
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            result.data[i][j] = data[i][j] * mul;
+        }
+    }
+    return result;
+}
+
 int matrix::getDim(){
     return dim;
 }
@@ -72,12 +145,7 @@ double matrix::getNorm2(){
     for(int i = 0; i < dim; i++){
         sum[i] = 0;
         for(int j = 0; j < dim; j++){
-            if(data[i][j]<0){
-                sum[i] += (-data[i][j]);
-            }
-            else{
-                sum[i] += data[i][j];
-            }
+            sum[i] += absolut(data[i][j]);
         }
     }
     double max = sum[0];
