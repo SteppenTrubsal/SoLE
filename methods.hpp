@@ -94,3 +94,43 @@ double JacobiMethod(matrix A, double* _b, double* x0, double eps){
         cout << endl;
     return counter;
 }
+
+double GaussSeidelMethod(matrix A, double* _b, double* x0, double eps){
+    matrix* LUD = A.getLUD();
+    double* b = new double[A.getDim()];
+    double* xk0 = new double[A.getDim()];
+    
+    for(int i = 0; i < A.getDim(); i++){
+        b[i] = _b[i];
+    }
+    for(int i = 0; i < A.getDim(); i++){
+        xk0[i] = x0[i];
+    }
+    
+    matrix L = LUD[0];
+    matrix U = LUD[1];
+    matrix D = LUD[2];
+
+    double* diff = new double[A.getDim()];
+    int counter = 0;
+
+    do{
+        double* xk1 = new double[A.getDim()];
+        double* temp1 = (L+D).getReverse()*b;
+        double* temp2 = (L+D).getReverse()*U*xk0;
+        for(int i = 0; i < A.getDim(); i++) {
+            xk1[i] = temp1[i] - temp2[i];
+        }
+        for(int i = 0; i < A.getDim(); i++) {
+            diff[i] = xk1[i] - xk0[i];
+        }
+        delete[] xk0;
+        xk0 = xk1;
+        counter++;
+    }while(getEucleadeanNorm(diff) > eps);
+    for(int i = 0 ; i < A.getDim(); i++) {
+            cout << xk0[i] << " ";
+        }
+        cout << endl;
+    return counter;
+}
