@@ -212,9 +212,6 @@ matrix* matrix::getLUD(){
             }
         }
     }
-    for(int i = 0; i < 3; i++){
-        res[i].show();
-    }
     return res;
 }
 
