@@ -5,24 +5,31 @@ using namespace std;
 class matrix{
     double** data;
     int dim;
+
+    matrix(const matrix&);
+    void nullExpand(int nDim = 4);
 public:
     matrix();
     ~matrix();
     explicit matrix(int);
     explicit matrix(double**,int dimensions = 4);
-    matrix(const matrix&);
 
     matrix& operator=(const matrix&);
     matrix operator+(const matrix&);
     matrix operator-(const matrix&);
     double* operator*(const double*);
     matrix operator*(const double);
+    matrix operator*(const matrix&);
 
 
     int getDim();
+    double* getLambda();
     double getNorm1();
     double getNorm2();
     double getNorm3();
+    double getTau();
+
+    matrix* getLUD();
 
     void show();
     matrix transpose();
@@ -134,11 +141,30 @@ matrix matrix::operator*(const double mul){
     return result;
 }
 
+matrix matrix::operator*(const matrix& m){
+    matrix result(dim);
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            result.data[i][j] = 0;
+            for(int k = 0; k < dim; k++){
+                result.data[i][j]+=this->data[i][k] * m.data[k][j];
+            }
+        }
+    }
+}
+
 int matrix::getDim(){
     return dim;
 }
 
-double matrix::getNorm1(){}
+double* matrix::getLambda(){
+    return findEigenvalues(data);
+}
+
+double matrix::getNorm1(){
+    matrix temp(*this);
+    return sqrt(max((temp*temp.transpose()).getLambda()));
+}
 
 double matrix::getNorm2(){
     double *sum = new double[dim];
@@ -148,18 +174,46 @@ double matrix::getNorm2(){
             sum[i] += absolut(data[i][j]);
         }
     }
-    double max = sum[0];
-    for(int i = 1; i < dim; i++){
-        if(max < sum[i]){
-            max = sum[i];
-        }
-    }
-    return max;
+    return max(sum);
 }
 
 double matrix::getNorm3(){
     transpose().getNorm2();
 }
+
+double matrix::getTau(){
+    return 2/(1+absMax(getLambda()));
+}
+matrix* matrix::getLUD(){
+    matrix* res = new matrix[3];
+    for(int i = 0; i < 3; i++){
+        res[i].nullExpand();
+    }
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            if(j < i){
+                res[0].data[i][j] = data[i][j];
+                res[1].data[i][j] = 0;
+                res[2].data[i][j] = 0;
+            }
+            else if (j == i) {
+                res[0].data[i][j] = 0;
+                res[1].data[i][j] = data[i][j];
+                res[2].data[i][j] = 0;
+            }
+            else if (j > i) {
+                res[0].data[i][j] = 0;
+                res[1].data[i][j] = 0;
+                res[2].data[i][j] = data[i][j];
+            }
+        }
+    }
+    for(int i = 0; i < 3; i++){
+        res[i].show();
+    }
+    return res;
+}
+
 
 void matrix::show(){
     for(int i = 0; i < dim; i++){
@@ -168,6 +222,17 @@ void matrix::show(){
         }
         cout << endl;
     }
+}
+
+void matrix::nullExpand(int nDim){
+    data = new double*[nDim];
+    for(int i = dim; i < nDim; i++){
+        data[i] = new double[nDim];
+        for(int j = 0; j < nDim; j++){
+            data[i][j] = 0;
+        }
+    }
+    dim = nDim;
 }
 
 matrix matrix::transpose(){

@@ -1,7 +1,7 @@
 #include "matrix.hpp"
 using namespace std;
 
-double fixedPointMethod(matrix A, double* _b, double* x0, double tau, double eps, int bLen = 4, int xk0Len = 4){
+double simpleIterationsMethod(matrix A, double* _b, double* x0, double tau, double eps, int bLen = 4, int xk0Len = 4){
     matrix E(A.getDim());
     double *xk0 = new double[xk0Len];
     cout << "xk0: ";
@@ -20,7 +20,12 @@ double fixedPointMethod(matrix A, double* _b, double* x0, double tau, double eps
     cout << endl;
     double *diff = new double[xk0Len];
 
-    (E - A*tau).show();
+    /*double tau = 1;
+    cout << "tau: ";
+    while(((E - A*tau).getNorm2() > 1) and (tau > 0)){
+        tau = tau - 0.0001;
+        cout << tau << " " << (E - A*tau).getNorm2() << endl;
+    }*/
 
     double gg = (E - A * tau).getNorm2();
 	//if (gg > 1) { return gg; }
@@ -42,5 +47,14 @@ double fixedPointMethod(matrix A, double* _b, double* x0, double tau, double eps
         counter++;
         cout << counter << " " << getEucleadeanNorm(diff) << endl;
 	} while (getEucleadeanNorm(diff) > eps);
+    for(int i = 0 ; i < bLen; i++) {
+            cout << xk0[i] << " ";
+        }
+        cout << endl;
     return counter;
+}
+
+double JacobiMethod(matrix A, double* _b, double* x0, double eps){
+    matrix* LUD = A.getLUD();
+
 }

@@ -7,7 +7,6 @@ double _A[4][4] = {
 
 double _b[] = { 17,5,21,0 };
 
-double _tau = 0.05;
 double _x0[] = {1,1,1,1};
 
 double** createA(int dim = 4) {

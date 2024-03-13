@@ -4,5 +4,9 @@ using namespace std;
 
 int main(){
     matrix A(createA());
-    cout << fixedPointMethod(A, createB(), createX0(), _tau, 0.01) << endl;
+    cout << A.getTau() << endl;
+    //cout << simpleIterationsMethod(A, createB(), createX0(), A.getTau(), 0.01) << endl;
+    A.show();
+    cout << endl;
+    A.getLUD();
 }
