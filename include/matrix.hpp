@@ -152,6 +152,7 @@ matrix matrix::operator*(const matrix& m){
             }
         }
     }
+    return result;
 }
 
 int matrix::getDim(){
@@ -179,7 +180,9 @@ double matrix::getNorm2(){
 }
 
 double matrix::getNorm3(){
-    transpose().getNorm2();
+    
+    return transpose().getNorm2();
+
 }
 
 double matrix::getTau(){

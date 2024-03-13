@@ -1,5 +1,5 @@
 #include <cmath>
-#include "/usr/include/eigen3/Eigen/Eigenvalues"
+#include <Eigen/Dense>
 using namespace std;
 
 double absolut(const double& x){
