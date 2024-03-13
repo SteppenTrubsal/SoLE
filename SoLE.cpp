@@ -9,4 +9,6 @@ int main(){
     A.show();
     cout << endl;
     A.getLUD();
+
+    cout << JacobiMethod(A, createB(), createX0(), 0.01) << endl;
 }

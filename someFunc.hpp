@@ -48,6 +48,14 @@ double getEucleadeanNorm(double* arr, int len = 4){
     return sqrt(sum);
 }
 
+double power(double x, double y){
+    double result = 0;
+    for(int i = 0; i < y; i++){
+        result *= x;
+    }
+    return result;
+}
+
 using namespace Eigen;
 
 double* findEigenvalues(double** matrix, int len = 4) {

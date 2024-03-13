@@ -5,14 +5,13 @@ using namespace std;
 class matrix{
     double** data;
     int dim;
-
-    matrix(const matrix&);
     void nullExpand(int nDim = 4);
 public:
     matrix();
     ~matrix();
     explicit matrix(int);
     explicit matrix(double**,int dimensions = 4);
+    matrix(const matrix&);
 
     matrix& operator=(const matrix&);
     matrix operator+(const matrix&);
@@ -28,6 +27,8 @@ public:
     double getNorm2();
     double getNorm3();
     double getTau();
+    matrix getReverse();
+    double getDet();
 
     matrix* getLUD();
 
@@ -214,6 +215,48 @@ matrix* matrix::getLUD(){
     return res;
 }
 
+double matrix::getDet(){
+    int d = getDim();
+    if(d == 2){
+        double det = data[0][0] * data[1][1] - data[0][1] * data[1][0];
+        return det;
+    }
+    double det = 0;
+    for(int k = 0; k < d; k++){
+        matrix temp(d-1);
+        int counter = 0;
+        for(int i = 0; i < d; i++){
+            for(int j = 0; j < d; j++){
+                if(i!= k && j!= k){
+                    temp.data[int(counter/(d-1))][int(counter%d)] = data[i][j];
+                    counter++;
+                }
+            }
+        }
+        det+= data[0][k] * power(-1,k) * temp.getDet();
+    }
+    return det;
+}
+
+matrix matrix::getReverse(){
+    matrix result(dim);
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            matrix temp(dim-1);
+            int counter = 0;
+            for(int _i = 0; _i < dim; _i++){
+                for(int _j = 0; _j < dim; _j++){
+                    if(_i!= i && _j!= j){
+                        temp.data[int(counter/(dim-1))][int(counter%dim)] = data[_i][_j];
+                        counter++;
+                    }
+                }
+            }
+            result.data[i][j] = power(-1,i+j)*temp.getDet();
+        }
+    }
+    return result;
+}
 
 void matrix::show(){
     for(int i = 0; i < dim; i++){
@@ -244,4 +287,3 @@ matrix matrix::transpose(){
     }
     return trans;
 }
-
