@@ -8,6 +8,7 @@ public:
     matrix();
     matrix(const matrix&);
     matrix(vector<vector<double>>);
+    matrix(int);
     ~matrix();
 
     matrix& operator=(const matrix&);
@@ -32,6 +33,9 @@ matrix::matrix():data(){}
 matrix::matrix(const matrix& m):data(m.data){}
 matrix::matrix(vector<vector<double>> d):data(d){}
 matrix::~matrix(){data.clear();}
+matrix::matrix(int d):data(d){
+    for(int i = 0; i < d; i++){data[i].resize(d);}
+}
 
 matrix& matrix::operator=(const matrix& m){
     data = m.data;
