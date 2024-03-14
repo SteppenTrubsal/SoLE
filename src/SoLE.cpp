@@ -1,6 +1,10 @@
-#include "include/methods.hpp"
-#include "include/src.hpp"
+#include <methods.hpp>
 #include <iostream>
+#if  _MSVC_TRADITIONAL
+#include <src.hpp>
+#else
+#include "include/src.hpp"
+#endif
 using namespace std;
 
 int main(){

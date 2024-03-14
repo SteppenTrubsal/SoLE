@@ -1,5 +1,11 @@
 #include <vector>
+#if _MSVC_TRADITIONAL
+#include <Eigen/Dense>
+#else
 #include <eigen3/Eigen/Dense>
+#endif
+
+
 using namespace std;
 
 double getEucleadeanNorm(vector<double> v){
