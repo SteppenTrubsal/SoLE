@@ -1,5 +1,5 @@
-#include "methods.hpp"
-#include "src.hpp"
+#include "include/methods.hpp"
+#include "include/src.hpp"
 #include <iostream>
 using namespace std;
 

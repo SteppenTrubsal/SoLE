@@ -1,4 +1,5 @@
 #include "someFunc.hpp"
+#include <cmath>
 using namespace std;
 
 class matrix{
@@ -13,7 +14,7 @@ public:
     matrix operator+(const matrix&);
     matrix operator-(const matrix&);
     matrix operator*(const double&);
-    vector<double> operator*(const vector<double>&);
+    vector<double> operator*(const vector<double>);
     matrix operator*(const matrix&);
 
     vector<double> getLambda();
@@ -63,7 +64,7 @@ matrix matrix::operator*(const double& d){
     }
     return res;
 }
-vector<double> matrix::operator*(const vector<double>& v){
+vector<double> matrix::operator*(const vector<double> v){
     vector<double> res;
     for(int i = 0; i < data.size(); i++){
         res.push_back(0);
@@ -86,29 +87,58 @@ matrix matrix::operator*(const matrix& m){
     return res;
 }
 
-vector<double> matrix::getLambda(){}
-double matrix::getNorm1(){}
-double matrix::getNorm2(){}
-double matrix::getNorm3(){}
+vector<double> matrix::getLambda(){
+    return findEigenvalues(data);
+}
+double matrix::getNorm1(){
+    vector<double> lam = getLambda();
+    double max = (lam[0] > 0) ? lam[0] : -lam[0];
+    for(int i = 1; i < lam.size(); i++){
+        double temp = (lam[i] > 0)? lam[i] : -lam[i];
+        max = (temp > max)? temp : max;
+    }
+    return sqrt(max);
+}
+double matrix::getNorm2(){
+    vector<double> sum;
+    int dim = data[0].size();
+    for(int i = 0; i < dim; i++){
+        sum[i] = 0;
+        for(int j = 0; j < dim; j++){
+            sum[i] += (data[i][j] > 0)? data[i][j] : -data[i][j];
+        }
+    }
+    double max = sum[0];
+    for(int i = 1; i < dim; i++){
+        max = (max > sum[i])? max : sum[i];
+    }
+}
+double matrix::getNorm3(){
+    return getTranspose().getNorm2();
+}
 
 vector<matrix> matrix::getLUD(){
     vector<matrix> res;
     for(int i = 0; i < data.size(); i++){
+        res.push_back(matrix());
         for(int j = 0; j < data.size(); j++){
+            for(int k = 0; k < 3; k++){
+                res[k].data.resize(data.size());
+            }
             if(j < i){
-                res[0].data[i][j] = data[i][j];
-                res[1].data[i][j] = 0;
-                res[2].data[i][j] = 0;
+                res[0].data[i].push_back(data[i][j]);
+                res[1].data[i].push_back(0);
+                res[2].data[i].push_back(0);
             }
             else if (j == i) {
-                res[0].data[i][j] = 0;
-                res[1].data[i][j] = data[i][j];
-                res[2].data[i][j] = 0;
+                res[0].data[i].push_back(0);
+                res[1].data[i].push_back(data[i][j]);
+                res[2].data[i].push_back(0);
             }
             else if (j > i) {
-                res[0].data[i][j] = 0;
-                res[1].data[i][j] = 0;
-                res[2].data[i][j] = data[i][j];
+                res[0].data[i].push_back(0);
+                res[1].data[i].push_back(0);
+                res[2].data[i].push_back(data[i][j]);
             }
         }
     }
