@@ -118,24 +118,23 @@ double matrix::getNorm3(){
 }
 
 vector<matrix> matrix::getLUD(){
-    vector<matrix> res;
+    vector<matrix> res(3);
+    for(int k = 0; k < data.size(); k++){
+        res[k].data.resize(data.size());
+    }
     for(int i = 0; i < data.size(); i++){
-        res.push_back(matrix());
         for(int j = 0; j < data.size(); j++){
-            for(int k = 0; k < 3; k++){
-                res[k].data.resize(data.size());
-            }
             if(j < i){
                 res[0].data[i].push_back(data[i][j]);
                 res[1].data[i].push_back(0);
                 res[2].data[i].push_back(0);
             }
-            else if (j == i) {
+            else if(i == j){
                 res[0].data[i].push_back(0);
                 res[1].data[i].push_back(data[i][j]);
                 res[2].data[i].push_back(0);
             }
-            else if (j > i) {
+            else{
                 res[0].data[i].push_back(0);
                 res[1].data[i].push_back(0);
                 res[2].data[i].push_back(data[i][j]);
