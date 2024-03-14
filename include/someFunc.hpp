@@ -9,13 +9,11 @@
 using namespace std;
 
 double getEucleadeanNorm(vector<double> v){
-    
-}
-double power(double x0, double x1){
-    double pow = 0;
-    for(int i = 0; i < x1; x1++){
-        pow *= x0;
+    double sum = 0;
+    for(int i = 0; i < v.size(); i++){
+        sum += v[i] * v[i];
     }
+    return sqrt(sum);
 }
 
 using namespace Eigen;

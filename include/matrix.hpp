@@ -1,5 +1,4 @@
 #include "someFunc.hpp"
-#include <cmath>
 using namespace std;
 
 class matrix{
@@ -32,26 +31,24 @@ public:
 matrix::matrix():data(){}
 matrix::matrix(const matrix& m):data(m.data){}
 matrix::matrix(vector<vector<double>> d):data(d){}
-matrix::~matrix(){data.clear();}
-matrix::matrix(int d):data(d){
-    for(int i = 0; i < d; i++){data[i].resize(d);}
-}
+matrix::~matrix(){}
+matrix::matrix(int d):data(d, vector<double>(d,0)){}
 
 matrix& matrix::operator=(const matrix& m){
     data = m.data;
     return *this;
 }
 matrix matrix::operator+(const matrix& m){
-    matrix res;
+    matrix res(data.size());
     for(int i = 0; i < data.size(); i++){
-        for(int j = 0; j < m.data[0].size(); j++){
+        for(int j = 0; j < m.data.size(); j++){
             res.data[i][j] = data[i][j] + m.data[i][j];
         }
     }
     return res;
 }
 matrix matrix::operator-(const matrix& m){
-    matrix res;
+    matrix res(data.size());
     for(int i = 0; i < data.size(); i++){
         for(int j = 0; j < m.data[0].size(); j++){
             res.data[i][j] = data[i][j] - m.data[i][j];
@@ -60,7 +57,7 @@ matrix matrix::operator-(const matrix& m){
     return res;
 }
 matrix matrix::operator*(const double& d){
-    matrix res;
+    matrix res(data.size());
     for(int i = 0; i < data.size(); i++){
         for(int j = 0; j < data[0].size(); j++){
             res.data[i][j] = data[i][j] * d;
@@ -69,9 +66,9 @@ matrix matrix::operator*(const double& d){
     return res;
 }
 vector<double> matrix::operator*(const vector<double> v){
-    vector<double> res;
+    vector<double> res(data.size());
     for(int i = 0; i < data.size(); i++){
-        res.push_back(0);
+        res[i] = 0;
         for(int j = 0; j < data[0].size(); j++){
             res[i] += data[i][j] * v[j];
         }
@@ -79,7 +76,7 @@ vector<double> matrix::operator*(const vector<double> v){
     return res;
 }
 matrix matrix::operator*(const matrix& m){
-    matrix res;
+    matrix res(data.size());
     for(int i = 0; i < data.size(); i++){
         for(int j = 0; j < m.data[0].size(); j++){
             res.data[i][j] = 0;
@@ -122,37 +119,34 @@ double matrix::getNorm3(){
 }
 
 vector<matrix> matrix::getLUD(){
-    vector<matrix> res(3);
-    for(int k = 0; k < data.size(); k++){
-        res[k].data.resize(data.size());
-    }
+    vector<matrix> res(3,data.size());
     for(int i = 0; i < data.size(); i++){
         for(int j = 0; j < data.size(); j++){
             if(j < i){
-                res[0].data[i].push_back(data[i][j]);
-                res[1].data[i].push_back(0);
-                res[2].data[i].push_back(0);
+                res[0].data[i][j] = data[i][j];
+                res[1].data[i][j] = 0;
+                res[2].data[i][j] = 0;
             }
-            else if(i == j){
-                res[0].data[i].push_back(0);
-                res[1].data[i].push_back(data[i][j]);
-                res[2].data[i].push_back(0);
+            else if (j == i) {
+                res[0].data[i][j] = 0;
+                res[1].data[i][j] = data[i][j];
+                res[2].data[i][j] = 0;
             }
-            else{
-                res[0].data[i].push_back(0);
-                res[1].data[i].push_back(0);
-                res[2].data[i].push_back(data[i][j]);
+            else if (j > i) {
+                res[0].data[i][j] = 0;
+                res[1].data[i][j] = 0;
+                res[2].data[i][j] = data[i][j];
             }
         }
     }
     return res;
 }
 matrix matrix::getReverse(){
-    matrix result;
     int dim = data.size();
+    matrix result(dim);
     for(int i = 0; i < dim; i++){
         for(int j = 0; j < dim; j++){
-            matrix temp;
+            matrix temp(dim-1);
             int counter = 0;
             for(int _i = 0; _i < dim; _i++){
                 for(int _j = 0; _j < dim; _j++){
@@ -162,7 +156,7 @@ matrix matrix::getReverse(){
                     }
                 }
             }
-            result.data[i][j] = power(-1,i+j)*temp.getDet();
+            result.data[i][j] = pow(double(-1),double(i+j))*temp.getDet();
         }
     }
     return result;
@@ -174,7 +168,7 @@ double matrix::getDet(){
     int d = data.size();
     double det = 0;
     for(int k = 0; k < d; k++){
-        matrix temp;
+        matrix temp(d-1);
         int counter = 0;
         for(int i = 0; i < d; i++){
             for(int j = 0; j < d; j++){
@@ -184,7 +178,7 @@ double matrix::getDet(){
                 }
             }
         }
-        det+= data[0][k] * power(-1,k) * temp.getDet();
+        det+= data[0][k] * pow(double(-1),double(k)) * temp.getDet();
     }
     return det;
 }
