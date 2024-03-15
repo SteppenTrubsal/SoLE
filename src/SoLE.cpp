@@ -11,6 +11,6 @@ using namespace std;
 
 int main(){
     CWindow window;
-    //window.start();
+    window.start();
     cout << Jacobi(matrix(A),b,x0,0.01) << endl;
 }
