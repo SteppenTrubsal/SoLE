@@ -167,12 +167,36 @@ void CWindow::renderGUI()
 		}
 		ImGui::EndTable();
 	}
+	if (ImGui::Button("Get Result"))
+	{
+		std::vector<std::vector<double>> slae(strMatrix.size(),std::vector<double>(strMatrix.size(),0));
+		for (size_t i = 0; i < strMatrix.size(); i++)
+		{
+			for (size_t j = 0; j < strMatrix.size(); j++)
+			{
+				slae[i][j] = std::stod(strMatrix[i][j]);
+			}
+		}
+		std::vector<double> vecApproximations(strMatrix.size());
+		std::vector<double> freeMembersVector(strMatrix.size());
+		
+		for (size_t i = 0; i < strMatrix.size(); i++)
+		{
+			vecApproximations[i] = std::stod(strVectorOfInitialApproximations[i]);
+			freeMembersVector[i] = std::stod(strFreeMembersVector[i]);
+		}
 
+		matrix A(slae);
+
+
+
+		isTheResultReady = true;
+	}
 	if (!isTheResultReady)
 	{
-		ImGui::Begin("result");
-		ImGui::Button("PPP");
-		ImGui::End();
+		ImGui::BeginChild("result", ImVec2(0, 1000), true);
+		ImGui::LabelText("##lable", "Result:");
+		ImGui::EndChild();
 	}
 	ImGui::End();
 }

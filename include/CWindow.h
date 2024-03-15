@@ -3,6 +3,7 @@
 #include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <implot.h>
+#include <methods.hpp>
 
 class CWindow
 {
