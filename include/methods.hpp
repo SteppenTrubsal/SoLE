@@ -1,15 +1,14 @@
 //methods.hpp
 
 #include "matrix.hpp"
+#include <iostream>
 using namespace std;
 
 int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
     vector<matrix> LUD = A.getLUD();
     vector<double> diff;
-    vector<double> allDiff;
     int counter = 0;
     do{
-
         vector<double> temp1((LUD[0]+LUD[1])*x);
         vector<double> temp2(x.size());
         for(int i = 0; i < x.size(); i++){
@@ -22,16 +21,10 @@ int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
         }
         x.clear();
         x= x1;
-        std::copy(diff.begin(), diff.end(), std::back_inserter(allDiff));
         counter++;
     }while(getEucleadeanNorm(diff) > eps);
-    int i = 0;
-    for (auto d : allDiff)
-    {
-        i++;
-        cout << d << ' ';
-        if (i%4 == 0)
-            cout << endl;
+    for (int i = 0; i < x.size(); i++) {
+        cout << x[i] << " ";
     }
     cout << endl;
     return counter;

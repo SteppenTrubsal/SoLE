@@ -14,6 +14,7 @@ public:
     matrix operator+(const matrix&);
     matrix operator-(const matrix&);
     matrix operator*(const double&);
+    matrix operator/(const double&);
     vector<double> operator*(const vector<double>);
     matrix operator*(const matrix&);
 
@@ -64,6 +65,15 @@ matrix matrix::operator*(const double& d){
     for(int i = 0; i < data.size(); i++){
         for(int j = 0; j < data[0].size(); j++){
             res.data[i][j] = data[i][j] * d;
+        }
+    }
+    return res;
+}
+matrix matrix::operator/(const double& d) {
+    matrix res(data.size());
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data[0].size(); j++) {
+            res.data[i][j] = data[i][j] / d;
         }
     }
     return res;
@@ -131,7 +141,7 @@ vector<matrix> matrix::getLUD(){
                 res[1].data[i][j] = 0;
                 res[2].data[i][j] = 0;
             }
-            else if (j > i)  {
+            else if (j > i) {
                 res[0].data[i][j] = 0;
                 res[1].data[i][j] = data[i][j];
                 res[2].data[i][j] = 0;
@@ -145,8 +155,6 @@ vector<matrix> matrix::getLUD(){
     }
     return res;
 }
-#include <iostream>
-using namespace std;
 matrix matrix::getReverse(){
     int dim = data.size();
     matrix result(dim);
@@ -165,6 +173,7 @@ matrix matrix::getReverse(){
             result.data[i][j] = pow(double(-1),double(i+j))*temp.getDet();
         }
     }
+    result = result / getDet();
     return result;
 }
 double matrix::getDet(){
