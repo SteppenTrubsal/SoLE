@@ -29,3 +29,21 @@ int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
     cout << endl;
     return counter;
 }
+
+int GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps) {
+    vector<matrix> LUD = A.getLUD();
+    vector<double> diff;
+    int counter = 0;
+
+    matrix temp1 = (LUD[0] + LUD[2]).getReverse();
+    matrix temp2 = temp1 * LUD[1];
+    do {
+        vector<double> temp3 = temp1 * b;
+        vector<double> temp4 = temp2 * x;
+        vector<double> x1(b.size());
+        for (int i = 0; i < b.size(); i++) {
+            x1[i] = temp3[i] - temp4[i];
+        }
+
+    }
+}
