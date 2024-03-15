@@ -2,7 +2,12 @@
 
 #include "matrix.hpp"
 #include <iostream>
+#include <table.hpp>
 using namespace std;
+
+static vector<table> simpleIterTable;
+static vector<table> JacobiTable;
+static vector<table> GaussSeidelTable;
 
 int SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps) {
     int counter = 0;
@@ -25,6 +30,11 @@ int SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps) {
         x.clear();
         x = x1;
         counter++;
+
+        table gg;
+        gg.num = counter;
+        gg.diffNorm = getEucleadeanNorm(diff);
+        simpleIterTable.push_back(gg);
     } while (getEucleadeanNorm(diff) > eps);
     for (int i = 0; i < x.size(); i++) {
         cout << x[i] << " ";
@@ -51,6 +61,11 @@ int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
         x.clear();
         x= x1;
         counter++;
+
+        table gg;
+        gg.num = counter;
+        gg.diffNorm = getEucleadeanNorm(diff);
+        JacobiTable.push_back(gg);
     }while(getEucleadeanNorm(diff) > eps);
     for (int i = 0; i < x.size(); i++) {
         cout << x[i] << " ";
@@ -80,6 +95,11 @@ int GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps) {
         x.clear();
         x = x1;
         counter++;
+
+        table gg;
+        gg.num = counter;
+        gg.diffNorm = getEucleadeanNorm(diff);
+        GaussSeidelTable.push_back(gg);
     }while (getEucleadeanNorm(diff) > eps);
     for (int i = 0; i < x.size(); i++) {
         cout << x[i] << " ";
