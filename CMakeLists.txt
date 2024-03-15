@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 project(SoLE)
-
+include("vcpkg.cmake")
 file(GLOB_RECURSE SOURCES "src/*.cpp" "include/*.h" "include/*.hpp")
 add_executable(SoLE ${SOURCES})
 

@@ -53,6 +53,7 @@ void CWindow::mainLoop()
 			}
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
+		renderGUI();
 		ImGui::ShowDemoWindow();
 		ImPlot::ShowDemoWindow();
 		window.clear();
@@ -63,4 +64,9 @@ void CWindow::mainLoop()
 
 	ImGui::SFML::Shutdown();
 	ImPlot::DestroyContext();
+}
+
+void CWindow::renderGUI()
+{
+
 }
