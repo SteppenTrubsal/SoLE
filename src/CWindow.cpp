@@ -4,9 +4,13 @@
 #include "include/CWindow.h"
 #endif
 
-CWindow::CWindow() : window(sf::VideoMode(1024,728),L"LAB 2")
+CWindow::CWindow() : 
+	window(sf::VideoMode(1024,728),L"LAB 2"),
+strMatrix(4,std::vector<std::string>(4,"0")),
+strFreeMembersVector(4,"0"),
+strVectorOfInitialApproximations(4,"0"),
+toleration(1e-2)
 {
-
 
 }
 
@@ -68,5 +72,108 @@ void CWindow::mainLoop()
 
 void CWindow::renderGUI()
 {
+	static int sizeMatrix = 4;
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+	ImGui::Begin("Main Window", nullptr,
+		ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoBringToFrontOnFocus);
 
+
+	ImGui::LabelText("##lable","Matrix systems of linear algebraic equations:");
+
+	ImGui::SliderInt("SLAE size", &sizeMatrix, 2, 10);
+	if (sizeMatrix != strMatrix.size())
+	{
+		std::vector<std::vector<std::string>> temp(strMatrix);
+		std::vector<std::string> temp2(strFreeMembersVector);
+		std::vector<std::string> temp3(strVectorOfInitialApproximations);
+		
+		int newSize = std::min((int)strMatrix.size(), sizeMatrix);
+		strMatrix.clear();
+		strFreeMembersVector.clear();
+		strVectorOfInitialApproximations.clear();
+		for (size_t i = 0; i < sizeMatrix; i++)
+		{
+			strMatrix.push_back(std::vector<std::string>(sizeMatrix,"0"));
+			strFreeMembersVector.push_back("0");
+			strVectorOfInitialApproximations.push_back("0");
+		}
+		for (size_t i = 0; i < newSize; i++)
+		{
+			for (size_t j = 0; j < newSize; j++)
+			{
+				strMatrix[i][j] = temp[i][j];
+			}
+		}
+		for (size_t i = 0; i < newSize; i++)
+		{
+			strFreeMembersVector[i] = temp2[i];
+			strVectorOfInitialApproximations[i] = temp3[i];
+		}
+
+	}
+	static ImGuiTableFlags flags2 =
+		ImGuiTableFlags_Borders |
+		ImGuiTableFlags_RowBg |
+		ImGuiTableFlags_BordersH |
+		ImGuiTableFlags_BordersV |
+		ImGuiTableFlags_BordersInner |
+		ImGuiTableFlags_BordersOuter |
+		ImGuiTableFlags_Resizable;
+
+	if (ImGui::BeginTable("SLAE", strMatrix.size() + 1, flags2))
+	{
+		for (size_t row = 0; row < strMatrix.size(); row++)
+		{
+			for (size_t column = 0; column < strMatrix.size() + 1; column++)
+			{
+				if (strMatrix.size() == column)
+				{
+					ImGui::TableNextColumn();
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					ImGui::PushID(row * (strMatrix.size() + 1) + column);
+					ImGui::InputText("##cell", &strFreeMembersVector[row]);
+					ImGui::PopID();
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.5f, 0.5f, 0.5f, 1.0f)));
+				}
+				else
+				{
+					ImGui::TableNextColumn();
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					ImGui::PushID(row * (strMatrix.size() + 1) + column);
+					ImGui::InputText("##cell", &strMatrix[row][column]);
+					ImGui::PopID();
+				}
+			}
+		}
+		ImGui::EndTable();
+	}
+	ImGui::InputDouble("delta 1e-n", &toleration, 1e-2, 1e-2);
+	ImGui::LabelText("##lable", "Vector of initial approximations:");
+	if (ImGui::BeginTable("VectorOfInitialApproximations", strMatrix.size(), flags2))
+	{
+
+		for (size_t column = 0; column < strMatrix.size(); column++)
+		{
+			ImGui::TableNextColumn();
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			ImGui::PushID((strMatrix.size()+1) * (strMatrix.size() + 1) + column);
+			ImGui::InputText("##cell", &strVectorOfInitialApproximations[column]);
+			ImGui::PopID();
+			ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.2f, 0.5f, 0.7f, 1.0f)));
+			
+		}
+		ImGui::EndTable();
+	}
+
+	if (!isTheResultReady)
+	{
+		ImGui::Begin("result");
+		ImGui::Button("PPP");
+		ImGui::End();
+	}
+	ImGui::End();
 }
+
