@@ -31,7 +31,7 @@ vector<double> findEigenvalues(vector<vector<double>> matrix) {
     }
     else{
 
-        vector<double> eigenvalues;
+        vector<double> eigenvalues(len);
         for (int i = 0; i < len; i++) {
             eigenvalues[i] = eigensolver.eigenvalues()[i];
 
