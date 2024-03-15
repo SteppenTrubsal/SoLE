@@ -14,6 +14,7 @@ public:
 	void stop();
 private:
 	void mainLoop();
+	void renderGUI();
 
 	sf::RenderWindow window;
 

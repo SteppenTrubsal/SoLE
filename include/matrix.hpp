@@ -131,12 +131,12 @@ vector<matrix> matrix::getLUD(){
                 res[1].data[i][j] = 0;
                 res[2].data[i][j] = 0;
             }
-            else if (j == i) {
+            else if (j > i)  {
                 res[0].data[i][j] = 0;
                 res[1].data[i][j] = data[i][j];
                 res[2].data[i][j] = 0;
             }
-            else if (j > i) {
+            else if (j == i) {
                 res[0].data[i][j] = 0;
                 res[1].data[i][j] = 0;
                 res[2].data[i][j] = data[i][j];
