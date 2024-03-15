@@ -23,10 +23,13 @@ public:
     double getNorm2();
     double getNorm3();
 
-    vector<matrix> getLUD();
-    matrix getReverse();
-    double getDet();
-    matrix getTranspose();
+    vector<matrix> getLUD();    //
+    matrix getReverse();        //For Jacobi and Gauss-Seidel
+    double getDet();            //
+    matrix getTranspose();      //
+
+    void EFill();               //
+    double getTau();            //For simple iterations
 };
 
 matrix::matrix():data(){}
@@ -105,7 +108,7 @@ vector<double> matrix::getLambda(){
     return findEigenvalues(data);
 }
 double matrix::getNorm1(){
-    vector<double> lam = getLambda();
+    vector<double> lam = (getTranspose() * (*this)).getLambda();
     double max = (lam[0] > 0) ? lam[0] : -lam[0];
     for(int i = 1; i < lam.size(); i++){
         double temp = (lam[i] > 0)? lam[i] : -lam[i];
@@ -114,7 +117,7 @@ double matrix::getNorm1(){
     return sqrt(max);
 }
 double matrix::getNorm2(){
-    vector<double> sum;
+    vector<double> sum(data.size());
     int dim = data[0].size();
     for(int i = 0; i < dim; i++){
         sum[i] = 0;
@@ -173,7 +176,7 @@ matrix matrix::getReverse(){
             result.data[i][j] = pow(double(-1),double(i+j))*temp.getDet();
         }
     }
-    result = result / getDet();
+    result = result.getTranspose() / getDet();
     return result;
 }
 double matrix::getDet(){
@@ -187,7 +190,7 @@ double matrix::getDet(){
         int counter = 0;
         for(int i = 0; i < d; i++){
             for(int j = 0; j < d; j++){
-                if(i!= k && j!= k){
+                if(i!= 0 && j!= k){
                     temp.data[int(counter/(d-1))][int(counter%(d-1))] = data[i][j];
                     counter++;
                 }
@@ -198,11 +201,34 @@ double matrix::getDet(){
     return det;
 }
 matrix matrix::getTranspose(){
-    matrix res;
+    matrix res(data.size());
     for(int i = 0; i < data[0].size(); i++){
         for(int j = 0; j < data.size(); j++){
             res.data[i][j] = data[j][i];
         }
     }
     return res;
+}
+
+void matrix::EFill() {
+    int d = data.size();
+    for (int i = 0; i < d; i++) {
+        for (int j = 0; j < d; j++) {
+            if (i == j) {
+                data[i][j] = 1;
+            }
+        }
+    }
+}
+double matrix::getTau() {
+    double tau = 1;
+    double temp = 2;
+    matrix E(data.size());
+    E.EFill();
+
+    do {
+        tau -= 0.001;
+        temp = (E - (*this) * tau).getNorm1();
+    } while (temp > 1);
+    return tau;
 }
