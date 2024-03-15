@@ -32,7 +32,10 @@ matrix::matrix():data(){}
 matrix::matrix(const matrix& m):data(m.data){}
 matrix::matrix(vector<vector<double>> d):data(d){}
 matrix::~matrix(){}
-matrix::matrix(int d):data(d, vector<double>(d,0)){}
+matrix::matrix(int d):data(d, vector<double>(d,0)){
+
+
+}
 
 matrix& matrix::operator=(const matrix& m){
     data = m.data;
@@ -113,6 +116,7 @@ double matrix::getNorm2(){
     for(int i = 1; i < dim; i++){
         max = (max > sum[i])? max : sum[i];
     }
+    return max;
 }
 double matrix::getNorm3(){
     return getTranspose().getNorm2();
@@ -141,6 +145,8 @@ vector<matrix> matrix::getLUD(){
     }
     return res;
 }
+#include <iostream>
+using namespace std;
 matrix matrix::getReverse(){
     int dim = data.size();
     matrix result(dim);
@@ -151,7 +157,7 @@ matrix matrix::getReverse(){
             for(int _i = 0; _i < dim; _i++){
                 for(int _j = 0; _j < dim; _j++){
                     if(_i!= i && _j!= j){
-                        temp.data[int(counter/(dim-1))][int(counter%dim)] = data[_i][_j];
+                        temp.data[int(counter/(dim-1))][int(counter%(dim-1))] = data[_i][_j];
                         counter++;
                     }
                 }
@@ -173,7 +179,7 @@ double matrix::getDet(){
         for(int i = 0; i < d; i++){
             for(int j = 0; j < d; j++){
                 if(i!= k && j!= k){
-                    temp.data[int(counter/(d-1))][int(counter%d)] = data[i][j];
+                    temp.data[int(counter/(d-1))][int(counter%(d-1))] = data[i][j];
                     counter++;
                 }
             }
