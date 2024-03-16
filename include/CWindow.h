@@ -5,6 +5,12 @@
 #include <implot.h>
 #include <methods.hpp>
 
+struct vectorArr {
+	vector<table> simpleIterTable;
+	vector<table> JacobiTable;
+	vector<table> GaussSeidelTable;
+};
+
 class CWindow
 {
 public:
@@ -33,8 +39,7 @@ private:
 	std::vector<std::string> strFreeMembersVector;
 	std::vector<std::string> strVectorOfInitialApproximations;
 	double toleration;
-
+	vectorArr result;
 	bool isStarted = false;
 	bool isTheResultReady = false;
 };
-

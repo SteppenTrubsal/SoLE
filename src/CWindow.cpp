@@ -187,8 +187,28 @@ void CWindow::renderGUI()
 		}
 
 		matrix A(slae);
-
-
+		table temp;
+		result.simpleIterTable.clear();
+		result.JacobiTable.clear();
+		result.GaussSeidelTable.clear();
+		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-2, temp);
+		result.simpleIterTable.push_back(temp);
+		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-3, temp);
+		result.simpleIterTable.push_back(temp);
+		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-4, temp);
+		result.simpleIterTable.push_back(temp);
+		Jacobi(A, freeMembersVector, vecApproximations, 1e-2, temp);
+		result.JacobiTable.push_back(temp);
+		Jacobi(A, freeMembersVector, vecApproximations, 1e-3, temp);
+		result.JacobiTable.push_back(temp);
+		Jacobi(A, freeMembersVector, vecApproximations, 1e-4, temp);
+		result.JacobiTable.push_back(temp);
+		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-2, temp);
+		result.GaussSeidelTable.push_back(temp);
+		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-3, temp);
+		result.GaussSeidelTable.push_back(temp);
+		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-4, temp);
+		result.GaussSeidelTable.push_back(temp);
 
 		isTheResultReady = true;
 	}

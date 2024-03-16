@@ -5,11 +5,7 @@
 #include <table.hpp>
 using namespace std;
 
-static vector<table> simpleIterTable;
-static vector<table> JacobiTable;
-static vector<table> GaussSeidelTable;
-
-int SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps) {
+vector<double> SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     int counter = 0;
     double tau = A.getTau();
     matrix E(x.size());
@@ -30,20 +26,14 @@ int SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps) {
         x.clear();
         x = x1;
         counter++;
-
-        table gg;
-        gg.num = counter;
-        gg.diffNorm = getEucleadeanNorm(diff);
-        simpleIterTable.push_back(gg);
     } while (getEucleadeanNorm(diff) > eps);
-    for (int i = 0; i < x.size(); i++) {
-        cout << x[i] << " ";
-    }
-    cout << endl;
-    return counter;
+    debug.num = counter;
+    debug.diffNorm = getEucleadeanNorm(diff);
+    debug.eps = eps;
+    return x;
 }
 
-int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
+vector<double> Jacobi(matrix A, vector<double> b,vector<double> x, double eps, table& debug){
     vector<matrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
@@ -61,20 +51,14 @@ int Jacobi(matrix A, vector<double> b,vector<double> x, double eps){
         x.clear();
         x= x1;
         counter++;
-
-        table gg;
-        gg.num = counter;
-        gg.diffNorm = getEucleadeanNorm(diff);
-        JacobiTable.push_back(gg);
     }while(getEucleadeanNorm(diff) > eps);
-    for (int i = 0; i < x.size(); i++) {
-        cout << x[i] << " ";
-    }
-    cout << endl;
-    return counter;
+    debug.num = counter;
+    debug.diffNorm = getEucleadeanNorm(diff);
+    debug.eps = eps;
+    return x;
 }
 
-int GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps) {
+vector<double> GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     vector<matrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
@@ -95,15 +79,9 @@ int GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps) {
         x.clear();
         x = x1;
         counter++;
-
-        table gg;
-        gg.num = counter;
-        gg.diffNorm = getEucleadeanNorm(diff);
-        GaussSeidelTable.push_back(gg);
     }while (getEucleadeanNorm(diff) > eps);
-    for (int i = 0; i < x.size(); i++) {
-        cout << x[i] << " ";
-    }
-    cout << endl;
-    return counter;
+    debug.num = counter;
+    debug.diffNorm = getEucleadeanNorm(diff);
+    debug.eps = eps;
+    return x;
 }

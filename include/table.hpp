@@ -1,5 +1,6 @@
 struct table
 {
-	int num;
-	double diffNorm;
+	int num = 0;
+	double diffNorm = 0;
+	double eps = 0;
 };
