@@ -35,6 +35,7 @@ static void SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x,
 
     debug.eps = eps;
     debug.roots = x;
+    debug.methodName = "SimpleIterations";
 }
 
 static void Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps, table& debug){
@@ -63,6 +64,7 @@ static void Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps
     
     debug.eps = eps;
     debug.roots = x;
+    debug.methodName = "Jacobi";
 }
 
 static void GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
@@ -95,4 +97,5 @@ static void GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, doub
    
     debug.eps = eps;
     debug.roots = x;
+    debug.methodName = "GaussSeidel";
 }

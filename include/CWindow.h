@@ -38,8 +38,6 @@ private:
 	std::vector<std::vector<std::string>> strMatrix;
 	std::vector<std::string> strFreeMembersVector;
 	std::vector<std::string> strVectorOfInitialApproximations;
-	double toleration;
-	//vectorArr result;
 	bool isStarted = false;
 	bool isTheResultReady = false;
 };

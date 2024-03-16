@@ -1,5 +1,7 @@
+
 #include<methods.h>
 #include <iostream>
+#include <sstream>
 #if  _MSVC_TRADITIONAL
 #include <CWindow.h>
 #else
@@ -18,8 +20,7 @@ CWindow::CWindow() :
 	window(sf::VideoMode(1024, 728), L"LAB 2"),
 	strMatrix(4, std::vector<std::string>(4, "0")),
 	strFreeMembersVector(4, "0"),
-	strVectorOfInitialApproximations(4, "1"),
-	toleration(1e-2)
+	strVectorOfInitialApproximations(4, "1")
 {
 	strMatrix[0][0] = "18";
 	strMatrix[0][1] = "8";
@@ -95,8 +96,6 @@ void CWindow::mainLoop()
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
 		renderGUI();
-		//ImGui::ShowDemoWindow();
-		//ImPlot::ShowDemoWindow();
 		window.clear();
 
 		ImGui::SFML::Render(window);
@@ -109,7 +108,9 @@ void CWindow::mainLoop()
 
 void CWindow::renderGUI()
 {
+	static std::vector<table> res;
 	static int sizeMatrix = 4;
+
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 	ImGui::Begin("Main Window", nullptr,
@@ -204,14 +205,33 @@ void CWindow::renderGUI()
 		ImGui::EndTable();
 	}
 
-	static int selectedMethod = 0;
-	ImGui::RadioButton("Simple iterations method", &selectedMethod, 0);
-	ImGui::RadioButton("Jacobi method", &selectedMethod, 1);
-	ImGui::RadioButton("Gauss-Seidel method", &selectedMethod, 2);
+	static bool rbtnJacobi = false;
+	static bool rbtnSimpleIterations = false;
+	static bool rbtnGaussSeidel = false;
+	static bool toler_e2 = false;
+	static bool toler_e3 = false;
+	static bool toler_e4 = false;
+	static std::string convergenceCriteriaS;
+	static std::string convergenceCriteriaJ;
+	static std::string convergenceCriteriaG;
 
-	ImGui::InputDouble("delta 1e-n", &toleration, 1e-2, 1e-2);
+	ImGui::Checkbox("Simple iterations method", &rbtnSimpleIterations);
+	ImGui::SameLine();
+	ImGui::Checkbox("Jacobi method", &rbtnJacobi);
+	ImGui::SameLine();
+	ImGui::Checkbox("Gauss-Seidel method", &rbtnGaussSeidel);
+
+	ImGui::Checkbox("1e-2", &toler_e2);
+	ImGui::SameLine();
+	ImGui::Checkbox("1e-3", &toler_e3);
+	ImGui::SameLine();
+	ImGui::Checkbox("1e-4", &toler_e4);
 	if (ImGui::Button("Get Result"))
 	{
+		convergenceCriteriaS.clear();
+		convergenceCriteriaJ.clear();
+		convergenceCriteriaG.clear();
+		res.clear();
 		std::vector<std::vector<double>> slae(strMatrix.size(),std::vector<double>(strMatrix.size(),0));
 		for (size_t i = 0; i < strMatrix.size(); i++)
 		{
@@ -230,9 +250,14 @@ void CWindow::renderGUI()
 		}
 
 		CustomMatrix A(slae);
-		table res;
-
-		if (selectedMethod == 0) {
+		std::vector<double> tolerations;
+		if (toler_e2)
+			tolerations.push_back(1e-2);
+		if (toler_e3)
+			tolerations.push_back(1e-3);
+		if (toler_e4)
+			tolerations.push_back(1e-4);
+		if (rbtnSimpleIterations) {
 
 			CustomMatrix tempE(A.getDim());						//
 			tempE.EFill();										//некоторые временные величины
@@ -243,164 +268,81 @@ void CWindow::renderGUI()
 				double temp = (lam[i] > 0) ? lam[i] : -lam[i];	//
 				max = (temp > max) ? temp : max;				//
 			}
+			std::stringstream ss;
+			ss << "Sufficient condition ";
+			ss << ((tempE.getNorm1() < 1) ?"is performed":"is not performed") << ", since the ||E-tb|| = " << tempE.getNorm1() << std::endl
+				<< "Convergence criterion "<<((max < 1) ?"is performed": "is not performed")
+				<< ", since the eigenvalues E-tb: ";
+			for (int i = 0; i < lam.size(); i++) { ss << lam[i] << " "; }
+			ss <<  std::endl;
+			convergenceCriteriaS = ss.str();
+			for (size_t i = 0; i < tolerations.size(); i++)
+			{
+				table tab;
+				SimpleIterations(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+				res.push_back(tab);
+			}
 
-			std::cout << "Достаточное условие ";
-			if (tempE.getNorm1() < 1) { std::cout << "выполняется"; }
-			else { std::cout << "не выполняется"; }
-			std::cout << ", так как ||E-tb|| = " << tempE.getNorm1() << std::endl;
+		}
+		if (rbtnJacobi) {
+			for (size_t i = 0; i < tolerations.size(); i++)
+			{
+				table tab;
+				Jacobi(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+				res.push_back(tab);
+			}
 			
-			std::cout << "Критерий сходимости ";
-			if (max < 1) { std::cout << "выполняется"; }
-			else { std::cout << "не выполняется"; }
-			std::cout << ", так как собственные значения E-tb: ";
-			for (int i = 0; i < lam.size(); i++) { std::cout << lam[i] << " "; }
-			std::cout <<  std::endl;
-
-			SimpleIterations(A, freeMembersVector, vecApproximations, toleration, res);
 		}
-		else if (selectedMethod == 1) {
-			Jacobi(A, freeMembersVector, vecApproximations, toleration, res);
-		}
-		else if (selectedMethod == 2) {
-			GaussSeidel(A, freeMembersVector, vecApproximations, toleration, res);
-		}
-
-		ImGui::BeginChild("result", ImVec2(0, 1280), true);
-
-		ImGui::LabelText("##lable", "Result:");
-		std::string roots = "Roots:";
-		for (size_t j = 0; j < res.roots.size(); j++)
-		{
-			roots += std::to_string(res.roots[j]) + ' ';
-		}
-		ImGui::LabelText("##lable", roots.c_str());
-		std::string epsil = "eps = ";
-		epsil += std::to_string(res.eps);
-		epsil += "  iter:";
-		epsil += std::to_string(res.num.back());
-
-		if (ImPlot::BeginPlot(epsil.c_str())) {
-			ImPlot::SetupAxes("Iterations", "Norm");
-			//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("y(x)", res.num.data(), res.diffNorm.data(), res.diffNorm.size());
-			ImPlot::EndPlot();
+		if (rbtnGaussSeidel) {
+			for (size_t i = 0; i < tolerations.size(); i++)
+			{
+				table tab;
+				GaussSeidel(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+				res.push_back(tab);
+			}
+			
 		}
 		
-		
-		ImGui::LabelText("##lable", ":");
-		ImGui::EndChild();
-
-
-		/*result.simpleIterTable.clear();
-		result.JacobiTable.clear();
-		result.GaussSeidelTable.clear();
-		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-2, temp);
-		result.simpleIterTable.push_back(temp);
-		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-3, temp);
-		result.simpleIterTable.push_back(temp);
-		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-4, temp);
-		result.simpleIterTable.push_back(temp);
-		Jacobi(A, freeMembersVector, vecApproximations, 1e-2, temp);
-		result.JacobiTable.push_back(temp);
-		Jacobi(A, freeMembersVector, vecApproximations, 1e-3, temp);
-		result.JacobiTable.push_back(temp);
-		Jacobi(A, freeMembersVector, vecApproximations, 1e-4, temp);
-		result.JacobiTable.push_back(temp);
-		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-2, temp);
-		result.GaussSeidelTable.push_back(temp);
-		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-3, temp);
-		result.GaussSeidelTable.push_back(temp);
-		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-4, temp);
-		result.GaussSeidelTable.push_back(temp);
-		for (size_t i = 0; i < result.simpleIterTable.size(); i++)
-		{
-			std::sort(result.simpleIterTable[i].num.begin(), result.simpleIterTable[i].num.end());
-			std::sort(result.simpleIterTable[i].diffNorm.begin(), result.simpleIterTable[i].diffNorm.end());
-			std::sort(result.JacobiTable[i].num.begin(), result.JacobiTable[i].num.end());
-			std::sort(result.JacobiTable[i].diffNorm.begin(), result.JacobiTable[i].diffNorm.end());
-			std::sort(result.GaussSeidelTable[i].num.begin(), result.GaussSeidelTable[i].num.end());
-			std::sort(result.GaussSeidelTable[i].diffNorm.begin(), result.GaussSeidelTable[i].diffNorm.end());
-		}
-		printf("Complited");
-		isTheResultReady = true;*/
+		isTheResultReady = true;
 	}
-	/*if (isTheResultReady)
+	if (isTheResultReady)
 	{
 		ImGui::BeginChild("result", ImVec2(0, 1280), true);
-		ImGui::LabelText("##lable", "Result:");
-		ImGui::LabelText("##lable", "SimpleIterations:");
-
-		for (size_t i = 0; i < result.simpleIterTable.size(); i++)
 		{
-			std::string roots = "Roots:";
-			for (size_t j = 0; j < result.simpleIterTable[i].roots.size(); j++)
+			ImGui::LabelText("##lable", "Result:");
+			if (!convergenceCriteriaS.empty())
 			{
-				roots += std::to_string(result.simpleIterTable[i].roots[j]) + ' ';
+				ImGui::LabelText("##lable", convergenceCriteriaS.c_str());
 			}
-			ImGui::LabelText("##lable", roots.c_str());
-			std::string epsil = "eps = ";
-			epsil += std::to_string(result.simpleIterTable[i].eps);
-			epsil += "  iter:";
-			epsil += std::to_string(result.simpleIterTable[i].diffNorm.size());
+
+			ImGui::LabelText("##lable", "Graphics:");
+			for (size_t i = 0; i < res.size(); i++)
+			{
+				ImGui::LabelText("##lable", res[i].methodName.c_str());
+				std::string roots = "Roots:";
+				for (size_t j = 0; j < res[i].roots.size(); j++)
+				{
+					roots += std::to_string(res[i].roots[j]) + ' ';
+				}
+				ImGui::LabelText("##lable", roots.c_str());
+				std::string epsil = "eps = ";
+				epsil += std::to_string(res[i].eps);
+				epsil += "  Iterations:";
+				epsil += std::to_string(res[i].num.size());
+
+				if (ImPlot::BeginPlot(epsil.c_str())) {
+					ImPlot::SetupAxes("Iterations", "Norm");
+					ImPlot::PlotLine("##plot", res[i].num.data(), res[i].diffNorm.data(), res[i].diffNorm.size());
+					ImPlot::EndPlot();
+				}
+			}
 			
-			if (ImPlot::BeginPlot(epsil.c_str())) {
-				ImPlot::SetupAxes("Iterations", "Norm");
-				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-				ImPlot::PlotLine("y(x)", result.simpleIterTable[i].num.data(), result.simpleIterTable[i].diffNorm.data(), result.simpleIterTable[i].diffNorm.size());
-				ImPlot::EndPlot();
-			}
 
+
+			ImGui::LabelText("##lable", ":");
 		}
-		ImGui::LabelText("##lable", "Jacobi:");
-
-		for (size_t i = 0; i < result.JacobiTable.size(); i++)
-		{
-			std::string roots = "Roots:";
-			for (size_t j = 0; j < result.JacobiTable[i].roots.size(); j++)
-			{
-				roots += std::to_string(result.JacobiTable[i].roots[j]) + ' ';
-			}
-			ImGui::LabelText("##lable", roots.c_str());
-			std::string epsil = "eps = ";
-			epsil += std::to_string(result.JacobiTable[i].eps);
-			epsil += "  iter:";
-			epsil += std::to_string(result.JacobiTable[i].diffNorm.size());
-			if (ImPlot::BeginPlot(epsil.c_str())) {
-				ImPlot::SetupAxes("Iterations", "Norm");
-				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-				ImPlot::PlotLine("y(x)", result.JacobiTable[i].num.data(), result.JacobiTable[i].diffNorm.data(), result.JacobiTable[i].diffNorm.size());
-				ImPlot::EndPlot();
-			}
-
-		}
-		ImGui::LabelText("##lable", "GaussSeidelTable:");
-
-		for (size_t i = 0; i < result.GaussSeidelTable.size(); i++)
-		{
-			std::string roots = "Roots:";
-			for (size_t j = 0; j < result.GaussSeidelTable[i].roots.size(); j++)
-			{
-				roots += std::to_string(result.GaussSeidelTable[i].roots[j]) + ' ';
-			}
-			ImGui::LabelText("##lable", roots.c_str());
-			std::string epsil = "eps = ";
-			epsil += std::to_string(result.GaussSeidelTable[i].eps);
-			epsil += "  iter:";
-			epsil += std::to_string(result.GaussSeidelTable[i].diffNorm.size());
-			if (ImPlot::BeginPlot(epsil.c_str())) {
-				ImPlot::SetupAxes("Iterations", "Norm");
-				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-				ImPlot::PlotLine("y(x)", result.GaussSeidelTable[i].num.data(), result.GaussSeidelTable[i].diffNorm.data(), result.GaussSeidelTable[i].diffNorm.size());
-				ImPlot::EndPlot();
-			}
-
-		}
-
-
-		ImGui::LabelText("##lable", ":");
 		ImGui::EndChild();
-		
-	}*/
+	}
 	ImGui::End();
 }
 
