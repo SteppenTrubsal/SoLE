@@ -102,6 +102,14 @@ double CustomMatrix::getNorm2() {
 double CustomMatrix::getNorm3() {
     return getTranspose().getNorm2();
 }
+double CustomMatrix::getConditionNumber(int param) {
+    if (param == 1) { return ((*this).getReverse()).getNorm1() * (*this).getNorm1(); }
+    if (param == 2) { return ((*this).getReverse()).getNorm2() * (*this).getNorm2(); }
+    if (param == 3) { return ((*this).getReverse()).getNorm3() * (*this).getNorm3(); }
+}
+int CustomMatrix::getDim() {
+    return data.size();
+}
 
 vector<CustomMatrix> CustomMatrix::getLUD() {
     vector<CustomMatrix> res(3, data.size());

@@ -1,5 +1,4 @@
 #include <vector>
-#include <set>
 struct table
 {
 	std::vector<double> num;

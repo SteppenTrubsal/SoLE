@@ -1,10 +1,11 @@
 //methods.hpp
-#include <table.h>
+//include <table.h>
 #include <CustomMatrix.h>
+#include <someFunc.h>
 
 
 using namespace std;
-static vector<double> SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
+static void SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     int counter = 0;
     double tau = A.getTau();
     CustomMatrix E(x.size());
@@ -12,6 +13,7 @@ static vector<double> SimpleIterations(CustomMatrix A, vector<double> b, vector<
     CustomMatrix temp = E - A * tau;
     vector<double> x1(x.size());
     vector<double> diff;
+    tableClear(debug);
 
     do {
         vector<double> xtemp = temp * x;
@@ -33,13 +35,13 @@ static vector<double> SimpleIterations(CustomMatrix A, vector<double> b, vector<
 
     debug.eps = eps;
     debug.roots = x;
-    return x;
 }
 
-static vector<double> Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps, table& debug){
+static void Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps, table& debug){
     vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
+    tableClear(debug);
     do{
         vector<double> temp1((LUD[0]+LUD[1])*x);
         vector<double> temp2(x.size());
@@ -61,16 +63,17 @@ static vector<double> Jacobi(CustomMatrix A, vector<double> b,vector<double> x, 
     
     debug.eps = eps;
     debug.roots = x;
-    return x;
 }
 
-static vector<double> GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
+static void GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
 
     CustomMatrix temp1 = (LUD[0] + LUD[2]).getReverse();
     CustomMatrix temp2 = temp1 * LUD[1];
+
+    tableClear(debug);
     do {
         vector<double> temp3 = temp1 * b;
         vector<double> temp4 = temp2 * x;
@@ -92,5 +95,4 @@ static vector<double> GaussSeidel(CustomMatrix A, vector<double> b, vector<doubl
    
     debug.eps = eps;
     debug.roots = x;
-    return x;
 }

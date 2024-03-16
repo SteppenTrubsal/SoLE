@@ -1,4 +1,4 @@
-#include <vector>
+#pragma once
 #if _MSVC_TRADITIONAL
 #include <Eigen/Dense>
 #else
@@ -13,7 +13,6 @@ static double getEucleadeanNorm(vector<double> v) {
     }
     return std::sqrt(sum);
 }
-
 using namespace Eigen;
 static vector<double> findEigenvalues(vector<vector<double>> matrix) {
     int len = matrix.size();
@@ -60,6 +59,8 @@ public:
     double getNorm1();
     double getNorm2();
     double getNorm3();
+    double getConditionNumber(int);
+    int getDim();
 
     vector<CustomMatrix> getLUD();    //
     CustomMatrix getReverse();        //For Jacobi and Gauss-Seidel

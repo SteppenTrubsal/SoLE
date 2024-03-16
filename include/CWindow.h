@@ -4,13 +4,12 @@
 #include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <implot.h>
-#include<methods.h>
 
-struct vectorArr {
+/*struct vectorArr {
 	vector<table> simpleIterTable;
 	vector<table> JacobiTable;
 	vector<table> GaussSeidelTable;
-};
+};*/
 
 class CWindow
 {
@@ -40,7 +39,7 @@ private:
 	std::vector<std::string> strFreeMembersVector;
 	std::vector<std::string> strVectorOfInitialApproximations;
 	double toleration;
-	vectorArr result;
+	//vectorArr result;
 	bool isStarted = false;
 	bool isTheResultReady = false;
 };

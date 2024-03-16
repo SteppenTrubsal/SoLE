@@ -1,3 +1,5 @@
+#include<methods.h>
+#include <iostream>
 #if  _MSVC_TRADITIONAL
 #include <CWindow.h>
 #else
@@ -116,7 +118,7 @@ void CWindow::renderGUI()
 		ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 
-	ImGui::LabelText("##lable", "Matrix systems of linear algebraic equations:");
+	ImGui::LabelText("##lable", "Matrix system of linear algebraic equations:");
 
 	ImGui::SliderInt("SLAE size", &sizeMatrix, 2, 10);
 	if (sizeMatrix != strMatrix.size())
@@ -185,8 +187,7 @@ void CWindow::renderGUI()
 		}
 		ImGui::EndTable();
 	}
-	ImGui::InputDouble("delta 1e-n", &toleration, 1e-2, 1e-2);
-	ImGui::LabelText("##lable", "Vector of initial approximations:");
+	ImGui::LabelText("##lable", "Vector of initial approximation:");
 	if (ImGui::BeginTable("VectorOfInitialApproximations", strMatrix.size(), flags2))
 	{
 
@@ -202,6 +203,13 @@ void CWindow::renderGUI()
 		}
 		ImGui::EndTable();
 	}
+
+	static int selectedMethod = 0;
+	ImGui::RadioButton("Simple iterations method", &selectedMethod, 0);
+	ImGui::RadioButton("Jacobi method", &selectedMethod, 1);
+	ImGui::RadioButton("Gauss-Seidel method", &selectedMethod, 2);
+
+	ImGui::InputDouble("delta 1e-n", &toleration, 1e-2, 1e-2);
 	if (ImGui::Button("Get Result"))
 	{
 		std::vector<std::vector<double>> slae(strMatrix.size(),std::vector<double>(strMatrix.size(),0));
@@ -222,8 +230,68 @@ void CWindow::renderGUI()
 		}
 
 		CustomMatrix A(slae);
-		table temp;
-		result.simpleIterTable.clear();
+		table res;
+
+		if (selectedMethod == 0) {
+
+			CustomMatrix tempE(A.getDim());						//
+			tempE.EFill();										//некоторые временные величины
+			tempE = tempE - (A * (A.getTau()));					//для проверки условий и критериев
+			vector<double> lam = tempE.getLambda();				//
+			double max = 0;										//
+			for (int i = 0; i < lam.size(); i++) {				//
+				double temp = (lam[i] > 0) ? lam[i] : -lam[i];	//
+				max = (temp > max) ? temp : max;				//
+			}
+
+			std::cout << "Достаточное условие ";
+			if (tempE.getNorm1() < 1) { std::cout << "выполняется"; }
+			else { std::cout << "не выполняется"; }
+			std::cout << ", так как ||E-tb|| = " << tempE.getNorm1() << std::endl;
+			
+			std::cout << "Критерий сходимости ";
+			if (max < 1) { std::cout << "выполняется"; }
+			else { std::cout << "не выполняется"; }
+			std::cout << ", так как собственные значения E-tb: ";
+			for (int i = 0; i < lam.size(); i++) { std::cout << lam[i] << " "; }
+			std::cout <<  std::endl;
+
+			SimpleIterations(A, freeMembersVector, vecApproximations, toleration, res);
+		}
+		else if (selectedMethod == 1) {
+			Jacobi(A, freeMembersVector, vecApproximations, toleration, res);
+		}
+		else if (selectedMethod == 2) {
+			GaussSeidel(A, freeMembersVector, vecApproximations, toleration, res);
+		}
+
+		ImGui::BeginChild("result", ImVec2(0, 1280), true);
+
+		ImGui::LabelText("##lable", "Result:");
+		std::string roots = "Roots:";
+		for (size_t j = 0; j < res.roots.size(); j++)
+		{
+			roots += std::to_string(res.roots[j]) + ' ';
+		}
+		ImGui::LabelText("##lable", roots.c_str());
+		std::string epsil = "eps = ";
+		epsil += std::to_string(res.eps);
+		epsil += "  iter:";
+		epsil += std::to_string(res.num.back());
+
+		if (ImPlot::BeginPlot(epsil.c_str())) {
+			ImPlot::SetupAxes("Iterations", "Norm");
+			//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotLine("y(x)", res.num.data(), res.diffNorm.data(), res.diffNorm.size());
+			ImPlot::EndPlot();
+		}
+		
+		
+		ImGui::LabelText("##lable", ":");
+		ImGui::EndChild();
+
+
+		/*result.simpleIterTable.clear();
 		result.JacobiTable.clear();
 		result.GaussSeidelTable.clear();
 		SimpleIterations(A, freeMembersVector, vecApproximations, 1e-2, temp);
@@ -254,9 +322,9 @@ void CWindow::renderGUI()
 			std::sort(result.GaussSeidelTable[i].diffNorm.begin(), result.GaussSeidelTable[i].diffNorm.end());
 		}
 		printf("Complited");
-		isTheResultReady = true;
+		isTheResultReady = true;*/
 	}
-	if (isTheResultReady)
+	/*if (isTheResultReady)
 	{
 		ImGui::BeginChild("result", ImVec2(0, 1280), true);
 		ImGui::LabelText("##lable", "Result:");
@@ -332,7 +400,7 @@ void CWindow::renderGUI()
 		ImGui::LabelText("##lable", ":");
 		ImGui::EndChild();
 		
-	}
+	}*/
 	ImGui::End();
 }
 
