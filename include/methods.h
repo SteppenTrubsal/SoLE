@@ -1,16 +1,15 @@
 //methods.hpp
+#include <table.h>
+#include <CustomMatrix.h>
 
-#include "matrix.hpp"
-#include <iostream>
-#include <table.hpp>
+
 using namespace std;
-
-vector<double> SimpleIterations(matrix A, vector<double> b, vector<double> x, double eps, table& debug) {
+static vector<double> SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     int counter = 0;
     double tau = A.getTau();
-    matrix E(x.size());
+    CustomMatrix E(x.size());
     E.EFill();
-    matrix temp = E - A * tau;
+    CustomMatrix temp = E - A * tau;
     vector<double> x1(x.size());
     vector<double> diff;
 
@@ -25,16 +24,20 @@ vector<double> SimpleIterations(matrix A, vector<double> b, vector<double> x, do
         }
         x.clear();
         x = x1;
+        debug.diffNorm.push_back(getEucleadeanNorm(diff));
+        
         counter++;
+        debug.num.push_back(counter);
     } while (getEucleadeanNorm(diff) > eps);
-    debug.num = counter;
-    debug.diffNorm = getEucleadeanNorm(diff);
+
+
     debug.eps = eps;
+    debug.roots = x;
     return x;
 }
 
-vector<double> Jacobi(matrix A, vector<double> b,vector<double> x, double eps, table& debug){
-    vector<matrix> LUD = A.getLUD();
+static vector<double> Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps, table& debug){
+    vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
     do{
@@ -50,21 +53,24 @@ vector<double> Jacobi(matrix A, vector<double> b,vector<double> x, double eps, t
         }
         x.clear();
         x= x1;
+        debug.diffNorm.push_back(getEucleadeanNorm(diff));
+        debug.num.push_back(counter);
         counter++;
     }while(getEucleadeanNorm(diff) > eps);
-    debug.num = counter;
-    debug.diffNorm = getEucleadeanNorm(diff);
+
+    
     debug.eps = eps;
+    debug.roots = x;
     return x;
 }
 
-vector<double> GaussSeidel(matrix A, vector<double> b, vector<double> x, double eps, table& debug) {
-    vector<matrix> LUD = A.getLUD();
+static vector<double> GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
+    vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
     int counter = 0;
 
-    matrix temp1 = (LUD[0] + LUD[2]).getReverse();
-    matrix temp2 = temp1 * LUD[1];
+    CustomMatrix temp1 = (LUD[0] + LUD[2]).getReverse();
+    CustomMatrix temp2 = temp1 * LUD[1];
     do {
         vector<double> temp3 = temp1 * b;
         vector<double> temp4 = temp2 * x;
@@ -78,10 +84,13 @@ vector<double> GaussSeidel(matrix A, vector<double> b, vector<double> x, double 
         }
         x.clear();
         x = x1;
+        debug.diffNorm.push_back(getEucleadeanNorm(diff));
+        debug.num.push_back(counter);
         counter++;
     }while (getEucleadeanNorm(diff) > eps);
-    debug.num = counter;
-    debug.diffNorm = getEucleadeanNorm(diff);
+
+   
     debug.eps = eps;
+    debug.roots = x;
     return x;
 }

@@ -17,6 +17,7 @@ target_link_libraries(SoLE PRIVATE Eigen3::Eigen imgui::imgui  sfml-system sfml-
 
 target_include_directories(SoLE PRIVATE "include")
 
+
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SoLE PROPERTY CXX_STANDARD 20)
 endif()

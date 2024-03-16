@@ -1,9 +1,10 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <implot.h>
-#include <methods.hpp>
+#include<methods.h>
 
 struct vectorArr {
 	vector<table> simpleIterTable;

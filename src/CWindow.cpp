@@ -3,18 +3,50 @@
 #else
 #include "include/CWindow.h"
 #endif
-
-CWindow::CWindow() : 
-	window(sf::VideoMode(1024,728),L"LAB 2"),
-strMatrix(4,std::vector<std::string>(4,"0")),
-strFreeMembersVector(4,"0"),
-strVectorOfInitialApproximations(4,"0"),
-toleration(1e-2)
+//vector<vector<double>> A = {
+//	{18,8,6,1},
+//	{4,13,8,1},
+//	{0,9,14,5},
+//	{6,4,4,12}
+//};
+//
+//vector<double> b = { 17,5,21,0 };
+//vector<double> x0 = {1,1,1,1};
+CWindow::CWindow() :
+	window(sf::VideoMode(1024, 728), L"LAB 2"),
+	strMatrix(4, std::vector<std::string>(4, "0")),
+	strFreeMembersVector(4, "0"),
+	strVectorOfInitialApproximations(4, "1"),
+	toleration(1e-2)
 {
+	strMatrix[0][0] = "18";
+	strMatrix[0][1] = "8";
+	strMatrix[0][2] = "6";
+	strMatrix[0][3] = "1";
+
+	strMatrix[1][0] = "4";
+	strMatrix[1][1] = "13";
+	strMatrix[1][2] = "8";
+	strMatrix[1][3] = "1";
+
+	strMatrix[2][0] = "0";
+	strMatrix[2][1] = "9";
+	strMatrix[2][2] = "14";
+	strMatrix[2][3] = "5";
+
+	strMatrix[3][0] = "6";
+	strMatrix[3][1] = "4";
+	strMatrix[3][2] = "4";
+	strMatrix[3][3] = "12";
+
+	strFreeMembersVector[0] = "17";
+	strFreeMembersVector[1] = "5";
+	strFreeMembersVector[2] = "21";
+	strFreeMembersVector[3] = "0";
 
 }
 
-CWindow::~CWindow() 
+CWindow::~CWindow()
 {
 }
 
@@ -29,7 +61,7 @@ void CWindow::start()
 		isStarted = true;
 		mainLoop();
 	}
-	
+
 
 }
 
@@ -44,6 +76,9 @@ void CWindow::stop()
 void CWindow::mainLoop()
 {
 	if (!ImGui::SFML::Init(window)) return;
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	ImPlot::CreateContext();
 	sf::Clock deltaClock;
 	while (window.isOpen() && isStarted)
@@ -58,8 +93,8 @@ void CWindow::mainLoop()
 		}
 		ImGui::SFML::Update(window, deltaClock.restart());
 		renderGUI();
-		ImGui::ShowDemoWindow();
-		ImPlot::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
+		//ImPlot::ShowDemoWindow();
 		window.clear();
 
 		ImGui::SFML::Render(window);
@@ -81,7 +116,7 @@ void CWindow::renderGUI()
 		ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 
-	ImGui::LabelText("##lable","Matrix systems of linear algebraic equations:");
+	ImGui::LabelText("##lable", "Matrix systems of linear algebraic equations:");
 
 	ImGui::SliderInt("SLAE size", &sizeMatrix, 2, 10);
 	if (sizeMatrix != strMatrix.size())
@@ -89,14 +124,14 @@ void CWindow::renderGUI()
 		std::vector<std::vector<std::string>> temp(strMatrix);
 		std::vector<std::string> temp2(strFreeMembersVector);
 		std::vector<std::string> temp3(strVectorOfInitialApproximations);
-		
+
 		int newSize = std::min((int)strMatrix.size(), sizeMatrix);
 		strMatrix.clear();
 		strFreeMembersVector.clear();
 		strVectorOfInitialApproximations.clear();
 		for (size_t i = 0; i < sizeMatrix; i++)
 		{
-			strMatrix.push_back(std::vector<std::string>(sizeMatrix,"0"));
+			strMatrix.push_back(std::vector<std::string>(sizeMatrix, "0"));
 			strFreeMembersVector.push_back("0");
 			strVectorOfInitialApproximations.push_back("0");
 		}
@@ -159,11 +194,11 @@ void CWindow::renderGUI()
 		{
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::PushID((strMatrix.size()+1) * (strMatrix.size() + 1) + column);
+			ImGui::PushID((strMatrix.size() + 1) * (strMatrix.size() + 1) + column);
 			ImGui::InputText("##cell", &strVectorOfInitialApproximations[column]);
 			ImGui::PopID();
 			ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.2f, 0.5f, 0.7f, 1.0f)));
-			
+
 		}
 		ImGui::EndTable();
 	}
@@ -186,7 +221,7 @@ void CWindow::renderGUI()
 			freeMembersVector[i] = std::stod(strFreeMembersVector[i]);
 		}
 
-		matrix A(slae);
+		CustomMatrix A(slae);
 		table temp;
 		result.simpleIterTable.clear();
 		result.JacobiTable.clear();
@@ -209,14 +244,94 @@ void CWindow::renderGUI()
 		result.GaussSeidelTable.push_back(temp);
 		GaussSeidel(A, freeMembersVector, vecApproximations, 1e-4, temp);
 		result.GaussSeidelTable.push_back(temp);
-
+		for (size_t i = 0; i < result.simpleIterTable.size(); i++)
+		{
+			std::sort(result.simpleIterTable[i].num.begin(), result.simpleIterTable[i].num.end());
+			std::sort(result.simpleIterTable[i].diffNorm.begin(), result.simpleIterTable[i].diffNorm.end());
+			std::sort(result.JacobiTable[i].num.begin(), result.JacobiTable[i].num.end());
+			std::sort(result.JacobiTable[i].diffNorm.begin(), result.JacobiTable[i].diffNorm.end());
+			std::sort(result.GaussSeidelTable[i].num.begin(), result.GaussSeidelTable[i].num.end());
+			std::sort(result.GaussSeidelTable[i].diffNorm.begin(), result.GaussSeidelTable[i].diffNorm.end());
+		}
+		printf("Complited");
 		isTheResultReady = true;
 	}
-	if (!isTheResultReady)
+	if (isTheResultReady)
 	{
-		ImGui::BeginChild("result", ImVec2(0, 1000), true);
+		ImGui::BeginChild("result", ImVec2(0, 1280), true);
 		ImGui::LabelText("##lable", "Result:");
+		ImGui::LabelText("##lable", "SimpleIterations:");
+
+		for (size_t i = 0; i < result.simpleIterTable.size(); i++)
+		{
+			std::string roots = "Roots:";
+			for (size_t j = 0; j < result.simpleIterTable[i].roots.size(); j++)
+			{
+				roots += std::to_string(result.simpleIterTable[i].roots[j]) + ' ';
+			}
+			ImGui::LabelText("##lable", roots.c_str());
+			std::string epsil = "eps = ";
+			epsil += std::to_string(result.simpleIterTable[i].eps);
+			epsil += "  iter:";
+			epsil += std::to_string(result.simpleIterTable[i].diffNorm.size());
+			
+			if (ImPlot::BeginPlot(epsil.c_str())) {
+				ImPlot::SetupAxes("Iterations", "Norm");
+				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotLine("y(x)", result.simpleIterTable[i].num.data(), result.simpleIterTable[i].diffNorm.data(), result.simpleIterTable[i].diffNorm.size());
+				ImPlot::EndPlot();
+			}
+
+		}
+		ImGui::LabelText("##lable", "Jacobi:");
+
+		for (size_t i = 0; i < result.JacobiTable.size(); i++)
+		{
+			std::string roots = "Roots:";
+			for (size_t j = 0; j < result.JacobiTable[i].roots.size(); j++)
+			{
+				roots += std::to_string(result.JacobiTable[i].roots[j]) + ' ';
+			}
+			ImGui::LabelText("##lable", roots.c_str());
+			std::string epsil = "eps = ";
+			epsil += std::to_string(result.JacobiTable[i].eps);
+			epsil += "  iter:";
+			epsil += std::to_string(result.JacobiTable[i].diffNorm.size());
+			if (ImPlot::BeginPlot(epsil.c_str())) {
+				ImPlot::SetupAxes("Iterations", "Norm");
+				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotLine("y(x)", result.JacobiTable[i].num.data(), result.JacobiTable[i].diffNorm.data(), result.JacobiTable[i].diffNorm.size());
+				ImPlot::EndPlot();
+			}
+
+		}
+		ImGui::LabelText("##lable", "GaussSeidelTable:");
+
+		for (size_t i = 0; i < result.GaussSeidelTable.size(); i++)
+		{
+			std::string roots = "Roots:";
+			for (size_t j = 0; j < result.GaussSeidelTable[i].roots.size(); j++)
+			{
+				roots += std::to_string(result.GaussSeidelTable[i].roots[j]) + ' ';
+			}
+			ImGui::LabelText("##lable", roots.c_str());
+			std::string epsil = "eps = ";
+			epsil += std::to_string(result.GaussSeidelTable[i].eps);
+			epsil += "  iter:";
+			epsil += std::to_string(result.GaussSeidelTable[i].diffNorm.size());
+			if (ImPlot::BeginPlot(epsil.c_str())) {
+				ImPlot::SetupAxes("Iterations", "Norm");
+				//ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotLine("y(x)", result.GaussSeidelTable[i].num.data(), result.GaussSeidelTable[i].diffNorm.data(), result.GaussSeidelTable[i].diffNorm.size());
+				ImPlot::EndPlot();
+			}
+
+		}
+
+
+		ImGui::LabelText("##lable", ":");
 		ImGui::EndChild();
+		
 	}
 	ImGui::End();
 }
