@@ -185,6 +185,24 @@ CustomMatrix CustomMatrix::getTranspose() {
     }
     return res;
 }
+bool CustomMatrix::diagonalPrevail() {
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data.size(); j++) {
+            if (i != j) {
+                if (((data[i][i] > 0) ? data[i][i] : -data[i][i]) < data[i][j]) { return 0; }
+            }
+        }
+    }
+    return 1;
+}
+bool CustomMatrix::simmetrical() {
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data.size(); j++) {
+            if (data[i][j] != data[j][i]) { return 0; }
+        }
+    }
+    return 1;
+}
 
 void CustomMatrix::EFill() {
     int d = data.size();

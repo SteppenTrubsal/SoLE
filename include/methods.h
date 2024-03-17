@@ -3,8 +3,26 @@
 #include <CustomMatrix.h>
 #include <someFunc.h>
 
-
 using namespace std;
+
+bool sufficientSimpleCheck(CustomMatrix A) {
+    CustomMatrix E(A.getDim());
+    E.EFill();
+    if ((E - A * (A.getTau())).getNorm1() < 1) { return 1; }
+    return 0;
+}
+bool convergenceSimpleCheck(CustomMatrix A) {
+    CustomMatrix E(A.getDim());
+    E.EFill();
+    vector<double> lam = (E - A * (A.getTau())).getLambda();
+    double max = 0;
+    for (int i = 0; i < lam.size(); i++) {
+        double temp = (lam[i] > 0) ? lam[i] : -lam[i];
+        max = (temp > max) ? temp : max;
+    }
+    if (max < 1) { return 1; }
+    return 0;
+}
 static void SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     int counter = 0;
     double tau = A.getTau();
@@ -32,12 +50,24 @@ static void SimpleIterations(CustomMatrix A, vector<double> b, vector<double> x,
         debug.num.push_back(counter);
     } while (getEucleadeanNorm(diff) > eps);
 
-
     debug.eps = eps;
     debug.roots = x;
     debug.methodName = "SimpleIterations";
 }
 
+bool sufficientJacobiCheck(CustomMatrix A) {
+    return A.diagonalPrevail();
+}
+bool convergenceJacobiCheck(CustomMatrix A) {
+    vector<CustomMatrix> LUD = A.getLUD();
+    vector<double> lamb = ((LUD[2].getReverse()
+        * (LUD[0] + LUD[1])) * (-1)
+        ).getLambda();
+    for (int i = 0; i < lamb.size(); i++) {
+        if (((lamb[i] > 0) ? lamb[i] : -lamb[i]) > 1) { return 0; }
+    }
+    return 1;
+}
 static void Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps, table& debug){
     vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
@@ -60,13 +90,27 @@ static void Jacobi(CustomMatrix A, vector<double> b,vector<double> x, double eps
         debug.num.push_back(counter);
         counter++;
     }while(getEucleadeanNorm(diff) > eps);
-
     
     debug.eps = eps;
     debug.roots = x;
     debug.methodName = "Jacobi";
 }
 
+bool sufficientGaussSeidelCheck(CustomMatrix A) {
+    vector<double> lamb = A.getLambda();
+    for (int i = 0; i < lamb.size(); i++) {
+        if (lamb[i] < 0) { return 0; }
+    }
+    return A.simmetrical();
+}
+bool convergenceGaussSeidelCheck(CustomMatrix A) {
+    vector<CustomMatrix> LUD = A.getLUD();
+    vector<double> lamb = (((LUD[0] + LUD[2]).getReverse() * LUD[1]) * (-1)).getLambda();
+    for (int i = 0; i < lamb.size(); i++) {
+        if (((lamb[i] > 0) ? lamb[i] : -lamb[i]) > 1) { return 0; }
+    }
+    return 1;
+}
 static void GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, double eps, table& debug) {
     vector<CustomMatrix> LUD = A.getLUD();
     vector<double> diff;
@@ -93,7 +137,6 @@ static void GaussSeidel(CustomMatrix A, vector<double> b, vector<double> x, doub
         debug.num.push_back(counter);
         counter++;
     }while (getEucleadeanNorm(diff) > eps);
-
    
     debug.eps = eps;
     debug.roots = x;

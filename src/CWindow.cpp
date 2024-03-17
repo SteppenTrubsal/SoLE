@@ -250,6 +250,7 @@ void CWindow::renderGUI()
 		}
 
 		CustomMatrix A(slae);
+		std::stringstream ss;
 		std::vector<double> tolerations;
 		if (toler_e2)
 			tolerations.push_back(1e-2);
@@ -257,6 +258,9 @@ void CWindow::renderGUI()
 			tolerations.push_back(1e-3);
 		if (toler_e4)
 			tolerations.push_back(1e-4);
+
+		ss << "Condition numbers of this matrix is: " << A.getConditionNumber(1) << "; " << A.getConditionNumber(2) << "; " << A.getConditionNumber(3) << std::endl;
+
 		if (rbtnSimpleIterations) {
 
 			CustomMatrix tempE(A.getDim());						//
@@ -268,39 +272,66 @@ void CWindow::renderGUI()
 				double temp = (lam[i] > 0) ? lam[i] : -lam[i];	//
 				max = (temp > max) ? temp : max;				//
 			}
-			std::stringstream ss;
-			ss << "Sufficient condition ";
+			ss << "Sufficient condition of simple iterations method ";
 			ss << ((tempE.getNorm1() < 1) ?"is performed":"is not performed") << ", since the ||E-tb|| = " << tempE.getNorm1() << std::endl
 				<< "Convergence criterion "<<((max < 1) ?"is performed": "is not performed")
-				<< ", since the eigenvalues E-tb: ";
+				<< ", since the eigenvalues of E-tb: ";
 			for (int i = 0; i < lam.size(); i++) { ss << lam[i] << " "; }
 			ss <<  std::endl;
 			convergenceCriteriaS = ss.str();
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
-				table tab;
-				SimpleIterations(A, freeMembersVector, vecApproximations, tolerations[i], tab);
-				res.push_back(tab);
+				if (convergenceSimpleCheck(A)) {
+					table tab;
+					SimpleIterations(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+					res.push_back(tab);
+				}
 			}
 
 		}
 		if (rbtnJacobi) {
+			vector<CustomMatrix> LUD = A.getLUD();
+			vector<double> lam = ((LUD[2].getReverse() * (LUD[0] + LUD[1])) * (-1)).getLambda();
+
+			ss << "Sufficient condition of Jacobi method ";
+			ss << ((sufficientJacobiCheck(A)) ? "is performed" : "is not performed") << std::endl
+			<< "Convergence criterion " << ((convergenceJacobiCheck(A)) ? "is performed" : "is not performed")
+				<< ", since the eigenvalues of -D^(-1) * (L + U): ";
+			for (int i = 0; i < lam.size(); i++) { 
+				ss << lam[i] << " "; 
+			}
+			ss << std::endl;
+			convergenceCriteriaS = ss.str();
+
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
-				table tab;
-				Jacobi(A, freeMembersVector, vecApproximations, tolerations[i], tab);
-				res.push_back(tab);
+				if (convergenceJacobiCheck(A)) {
+					table tab;
+					Jacobi(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+					res.push_back(tab);
+				}
 			}
-			
 		}
 		if (rbtnGaussSeidel) {
+			vector<CustomMatrix> LUD = A.getLUD();
+			vector<double> lam = (((LUD[0] + LUD[2]).getReverse() * LUD[1]) * (-1)).getLambda();
+
+			ss << "Sufficient condition of Gauss-Seidel method ";
+			ss << ((sufficientGaussSeidelCheck(A)) ? "is performed" : "is not performed") << std::endl
+				<< "Convergence criterion " << ((convergenceGaussSeidelCheck(A)) ? "is performed" : "is not performed")
+				<< ", since the eigenvalues of -(L + D)^(-1) * U: ";
+			for (int i = 0; i < lam.size(); i++) { ss << lam[i] << " "; }
+			ss << std::endl;
+			convergenceCriteriaS = ss.str();
+
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
-				table tab;
-				GaussSeidel(A, freeMembersVector, vecApproximations, tolerations[i], tab);
-				res.push_back(tab);
+				if (convergenceGaussSeidelCheck(A)) {
+					table tab;
+					GaussSeidel(A, freeMembersVector, vecApproximations, tolerations[i], tab);
+					res.push_back(tab);
+				}
 			}
-			
 		}
 		
 		isTheResultReady = true;

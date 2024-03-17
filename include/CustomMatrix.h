@@ -23,14 +23,14 @@ static vector<double> findEigenvalues(vector<vector<double>> matrix) {
         }
     }
 
-    SelfAdjointEigenSolver<MatrixXd> eigensolver(m);
+    EigenSolver<MatrixXd> eigensolver(m);
     if (eigensolver.info() != Success) {
     }
     else {
 
         vector<double> eigenvalues(len);
         for (int i = 0; i < len; i++) {
-            eigenvalues[i] = eigensolver.eigenvalues()[i];
+            eigenvalues[i] = eigensolver.eigenvalues()[i].real();
 
         }
 
@@ -64,8 +64,10 @@ public:
 
     vector<CustomMatrix> getLUD();    //
     CustomMatrix getReverse();        //For Jacobi and Gauss-Seidel
-    double getDet();            //
+    double getDet();                  //
     CustomMatrix getTranspose();      //
+    bool diagonalPrevail();           //
+    bool simmetrical();
 
     void EFill();               //
     double getTau();            //For simple iterations
