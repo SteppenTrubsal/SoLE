@@ -2,6 +2,8 @@
 #include<methods.h>
 #include <iostream>
 #include <sstream>
+
+
 #if  _MSVC_TRADITIONAL
 #include <CWindow.h>
 #else
@@ -81,8 +83,15 @@ void CWindow::mainLoop()
 	if (!ImGui::SFML::Init(window)) return;
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->Clear();
+	io.Fonts->AddFontFromFileTTF("Fonts/arial.ttf", 16.f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
+	ImGui::SFML::UpdateFontTexture();
+
+	ImGui::StyleColorsLight();
+	//ImGui::GetIO().FontGlobalScale = 1.5f;
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	ImPlot::CreateContext();
+
 	sf::Clock deltaClock;
 	while (window.isOpen() && isStarted)
 	{
@@ -119,9 +128,9 @@ void CWindow::renderGUI()
 		ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 
-	ImGui::LabelText("##lable", "Matrix system of linear algebraic equations:");
+	ImGui::LabelText("##lable", uTC(u8"Матричная система линейных алгебраических уравнений:"));
 
-	ImGui::SliderInt("SLAE size", &sizeMatrix, 2, 10);
+	ImGui::SliderInt(uTC(u8"Размеры СЛАУ"), &sizeMatrix, 2, 10);
 	if (sizeMatrix != strMatrix.size())
 	{
 		std::vector<std::vector<std::string>> temp(strMatrix);
@@ -188,7 +197,7 @@ void CWindow::renderGUI()
 		}
 		ImGui::EndTable();
 	}
-	ImGui::LabelText("##lable", "Vector of initial approximation:");
+	ImGui::LabelText("##lable", uTC(u8"Вектор начального приближения:"));
 	if (ImGui::BeginTable("VectorOfInitialApproximations", strMatrix.size(), flags2))
 	{
 
@@ -215,18 +224,18 @@ void CWindow::renderGUI()
 	static std::string convergenceCriteriaJ;
 	static std::string convergenceCriteriaG;
 
-	ImGui::Checkbox("Simple iterations method", &rbtnSimpleIterations);
+	ImGui::Checkbox(uTC(u8"Метод простых итераций"), &rbtnSimpleIterations);
 	ImGui::SameLine();
-	ImGui::Checkbox("Jacobi method", &rbtnJacobi);
+	ImGui::Checkbox(uTC(u8"Метод Якоби"), &rbtnJacobi);
 	ImGui::SameLine();
-	ImGui::Checkbox("Gauss-Seidel method", &rbtnGaussSeidel);
+	ImGui::Checkbox(uTC(u8"Метод Гаусса-Зейделя"), &rbtnGaussSeidel);
 
 	ImGui::Checkbox("1e-2", &toler_e2);
 	ImGui::SameLine();
 	ImGui::Checkbox("1e-3", &toler_e3);
 	ImGui::SameLine();
 	ImGui::Checkbox("1e-4", &toler_e4);
-	if (ImGui::Button("Get Result"))
+	if (ImGui::Button(uTC(u8"Решить")))
 	{
 		convergenceCriteriaS.clear();
 		convergenceCriteriaJ.clear();
@@ -259,7 +268,7 @@ void CWindow::renderGUI()
 		if (toler_e4)
 			tolerations.push_back(1e-4);
 
-		ss << "Condition numbers of this matrix is: " << A.getConditionNumber(1) << "; " << A.getConditionNumber(2) << "; " << A.getConditionNumber(3) << std::endl;
+		ss << uTC(u8"Числа обусловленности этой матрицы: ") << A.getConditionNumber(1) << "; " << A.getConditionNumber(2) << "; " << A.getConditionNumber(3) << std::endl;
 
 		if (rbtnSimpleIterations) {
 
@@ -272,13 +281,13 @@ void CWindow::renderGUI()
 				double temp = (lam[i] > 0) ? lam[i] : -lam[i];	//
 				max = (temp > max) ? temp : max;				//
 			}
-			ss << "Sufficient condition of simple iterations method ";
-			ss << ((tempE.getNorm1() < 1) ?"is performed":"is not performed") << ", since the ||E-tb|| = " << tempE.getNorm1() << std::endl
-				<< "Convergence criterion "<<((max < 1) ?"is performed": "is not performed")
-				<< ", since the eigenvalues of E-tb: ";
+			ss <<  uTC(u8"Достаточное условие для метода простых итераций ");
+			ss << ((tempE.getNorm1() < 1) ? uTC(u8"выполняется"): uTC(u8"не выполняется")) <<  uTC(u8", поскольку ||E-tb|| = \n") << tempE.getNorm1() << std::endl
+				<<  uTC(u8"Критерий сходимости ")<<((max < 1) ? uTC(u8"выполняется"):  uTC(u8"не выполняется"))
+				<<  uTC(u8", поскольку собственные значения E-tb: ");
 			for (int i = 0; i < lam.size(); i++) { ss << lam[i] << " "; }
-			ss <<  std::endl;
-			convergenceCriteriaS = ss.str();
+			ss << std::endl << std::endl;
+			
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
 				if (convergenceSimpleCheck(A)) {
@@ -293,15 +302,15 @@ void CWindow::renderGUI()
 			vector<CustomMatrix> LUD = A.getLUD();
 			vector<double> lam = ((LUD[2].getReverse() * (LUD[0] + LUD[1])) * (-1)).getLambda();
 
-			ss << "Sufficient condition of Jacobi method ";
-			ss << ((sufficientJacobiCheck(A)) ? "is performed" : "is not performed") << std::endl
-			<< "Convergence criterion " << ((convergenceJacobiCheck(A)) ? "is performed" : "is not performed")
-				<< ", since the eigenvalues of -D^(-1) * (L + U): ";
+			ss <<  uTC(u8"Достаточное условие для метода Якоби ");
+			ss << ((sufficientJacobiCheck(A)) ?  uTC(u8"выполняется") :  uTC(u8"не выполняется")) << std::endl
+			<< uTC(u8"Критерий сходимости ") << ((convergenceJacobiCheck(A)) ?  uTC(u8"выполняется") :  uTC(u8"не выполняется"))
+				<<  uTC(u8", поскольку собственные значения -D^(-1) * (L + U): \n");
 			for (int i = 0; i < lam.size(); i++) { 
 				ss << lam[i] << " "; 
 			}
-			ss << std::endl;
-			convergenceCriteriaS = ss.str();
+			ss << std::endl << std::endl;
+			//convergenceCriteriaS += ss.str();
 
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
@@ -316,13 +325,13 @@ void CWindow::renderGUI()
 			vector<CustomMatrix> LUD = A.getLUD();
 			vector<double> lam = (((LUD[0] + LUD[2]).getReverse() * LUD[1]) * (-1)).getLambda();
 
-			ss << "Sufficient condition of Gauss-Seidel method ";
-			ss << ((sufficientGaussSeidelCheck(A)) ? "is performed" : "is not performed") << std::endl
-				<< "Convergence criterion " << ((convergenceGaussSeidelCheck(A)) ? "is performed" : "is not performed")
-				<< ", since the eigenvalues of -(L + D)^(-1) * U: ";
+			ss <<  uTC(u8"Достаточное условие для метода Гаусса-Зейделя ");
+			ss << ((sufficientGaussSeidelCheck(A)) ?  uTC(u8"выполняется") :  uTC(u8"не выполняется")) << std::endl
+				<<  uTC(u8"Критерий сходимости ") << ((convergenceGaussSeidelCheck(A)) ?  uTC(u8"выполняется") :  uTC(u8"не выполняется"))
+				<<  uTC(u8", поскольку собственные значения -(L + D)^(-1) * U: \n");
 			for (int i = 0; i < lam.size(); i++) { ss << lam[i] << " "; }
-			ss << std::endl;
-			convergenceCriteriaS = ss.str();
+			ss << std::endl<<std::endl;
+			//convergenceCriteriaS +=ss.str();
 
 			for (size_t i = 0; i < tolerations.size(); i++)
 			{
@@ -333,20 +342,20 @@ void CWindow::renderGUI()
 				}
 			}
 		}
-		
+		convergenceCriteriaS = ss.str();
 		isTheResultReady = true;
 	}
 	if (isTheResultReady)
 	{
 		ImGui::BeginChild("result", ImVec2(0, 1280), true);
 		{
-			ImGui::LabelText("##lable", "Result:");
+			ImGui::LabelText("##lable", uTC(u8"Результат:"));
 			if (!convergenceCriteriaS.empty())
 			{
-				ImGui::LabelText("##lable", convergenceCriteriaS.c_str());
+				ImGui::LabelText("##lable", ((convergenceCriteriaS.c_str())));
 			}
 
-			ImGui::LabelText("##lable", "Graphics:");
+			ImGui::LabelText("##lable", uTC(u8"Графики:"));
 			for (size_t i = 0; i < res.size(); i++)
 			{
 				ImGui::LabelText("##lable", res[i].methodName.c_str());
@@ -358,11 +367,11 @@ void CWindow::renderGUI()
 				ImGui::LabelText("##lable", roots.c_str());
 				std::string epsil = "eps = ";
 				epsil += std::to_string(res[i].eps);
-				epsil += "  Iterations:";
+				epsil += uTC(u8"  Итерации:");
 				epsil += std::to_string(res[i].num.size());
 
 				if (ImPlot::BeginPlot(epsil.c_str())) {
-					ImPlot::SetupAxes("Iterations", "Norm");
+					ImPlot::SetupAxes(uTC(u8"Итерации"), uTC(u8"Норма"));
 					ImPlot::PlotLine("##plot", res[i].num.data(), res[i].diffNorm.data(), res[i].diffNorm.size());
 					ImPlot::EndPlot();
 				}

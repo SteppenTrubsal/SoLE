@@ -29,7 +29,10 @@ private:
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, (float)(int)(style.FramePadding.y * 0.60f)));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(style.ItemSpacing.x, (float)(int)(style.ItemSpacing.y * 0.60f)));
 	}
-
+	static const char* uTC(const char8_t* str)
+	{
+		return reinterpret_cast<const char*> (str);
+	}
 	static void PopStyleCompact()
 	{
 		ImGui::PopStyleVar(2);
